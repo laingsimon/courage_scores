@@ -7,9 +7,18 @@ import {
     TestContext,
 } from '../../helpers/tests.tsx';
 import { ISavingProposalsProps, SavingProposals } from './SavingProposals.tsx';
+import { IProposal } from './CreateSeasonDialog.tsx';
+import { divisionDataBuilder } from '../../helpers/builders/divisions.ts';
 
 describe('SavingProposals', () => {
     let context: TestContext;
+    const divisionData = divisionDataBuilder()
+        .withFixtureDate((b) => b)
+        .build();
+    const dummyProposal: IProposal = {
+        date: divisionData.fixtures![0],
+        division: divisionData,
+    };
 
     afterEach(async () => {
         await cleanUp(context);
@@ -28,13 +37,16 @@ describe('SavingProposals', () => {
         it('when saving and no fixtures to save', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 0,
-                saveResults: [
+                proposalsToSave: 0,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                 ],
                 saving: true,
@@ -47,13 +59,16 @@ describe('SavingProposals', () => {
         it('when saving and some fixtures to save', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 2,
-                saveResults: [
+                proposalsToSave: 2,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                 ],
                 saving: true,
@@ -66,13 +81,16 @@ describe('SavingProposals', () => {
         it('when not saving and has fixtures to save', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 2,
-                saveResults: [
+                proposalsToSave: 2,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                 ],
                 saving: false,
@@ -86,13 +104,16 @@ describe('SavingProposals', () => {
         it('progress and progress bar', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 2,
-                saveResults: [
+                proposalsToSave: 2,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                 ],
                 saving: true,
@@ -108,22 +129,75 @@ describe('SavingProposals', () => {
             expect(progressBar.style.width).toEqual('33.33%');
         });
 
-        it('errors, warnings and messages', async () => {
+        it('fixture errors, warnings and messages', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 2,
-                saveResults: [
+                proposalsToSave: 2,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: ['SUCCESSFUL SAVE ERROR'],
-                        warnings: ['SUCCESSFUL SAVE WARNING'],
-                        messages: ['SUCCESSFUL SAVE MESSAGE'],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: ['SUCCESSFUL SAVE ERROR'],
+                            warnings: ['SUCCESSFUL SAVE WARNING'],
+                            messages: ['SUCCESSFUL SAVE MESSAGE'],
+                        },
                     },
                     {
-                        success: false,
-                        errors: ['FAILURE SAVE ERROR'],
-                        warnings: ['FAILURE SAVE WARNING'],
-                        messages: ['FAILURE SAVE MESSAGE'],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: false,
+                            errors: ['FAILURE SAVE ERROR'],
+                            warnings: ['FAILURE SAVE WARNING'],
+                            messages: ['FAILURE SAVE MESSAGE'],
+                        },
+                    },
+                ],
+                saving: true,
+            });
+
+            const messagesContainer = context.all('.overflow-auto');
+            expect(messagesContainer.length).toEqual(1); // only one result is unsuccessful
+            const failureSaveResult = messagesContainer[0];
+            expect(
+                failureSaveResult
+                    .all('ol:nth-child(1) > li')
+                    .map((li) => li.text()),
+            ).toEqual(['FAILURE SAVE ERROR']);
+            expect(
+                failureSaveResult
+                    .all('ol:nth-child(2) > li')
+                    .map((li) => li.text()),
+            ).toEqual(['FAILURE SAVE WARNING']);
+            expect(
+                failureSaveResult
+                    .all('ol:nth-child(3) > li')
+                    .map((li) => li.text()),
+            ).toEqual(['FAILURE SAVE MESSAGE']);
+        });
+
+        it('note errors, warnings and messages', async () => {
+            await renderComponent({
+                saveMessage: 'SAVE MESSAGE',
+                proposalsToSave: 2,
+                savedProposals: [
+                    {
+                        proposal: dummyProposal,
+                        note: {
+                            success: true,
+                            errors: ['SUCCESSFUL SAVE ERROR'],
+                            warnings: ['SUCCESSFUL SAVE WARNING'],
+                            messages: ['SUCCESSFUL SAVE MESSAGE'],
+                        },
+                    },
+                    {
+                        proposal: dummyProposal,
+                        note: {
+                            success: false,
+                            errors: ['FAILURE SAVE ERROR'],
+                            warnings: ['FAILURE SAVE WARNING'],
+                            messages: ['FAILURE SAVE MESSAGE'],
+                        },
                     },
                 ],
                 saving: true,
@@ -152,19 +226,43 @@ describe('SavingProposals', () => {
         it('when no errors, warnings or messages', async () => {
             await renderComponent({
                 saveMessage: 'SAVE MESSAGE',
-                noOfFixturesToSave: 2,
-                saveResults: [
+                proposalsToSave: 2,
+                savedProposals: [
                     {
-                        success: true,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                     {
-                        success: false,
-                        errors: [],
-                        warnings: [],
-                        messages: [],
+                        proposal: dummyProposal,
+                        fixture: {
+                            success: false,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
+                    },
+                    {
+                        proposal: dummyProposal,
+                        note: {
+                            success: true,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
+                    },
+                    {
+                        proposal: dummyProposal,
+                        note: {
+                            success: false,
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
                     },
                 ],
                 saving: true,

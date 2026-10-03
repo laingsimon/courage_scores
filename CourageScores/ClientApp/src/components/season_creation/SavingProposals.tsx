@@ -1,19 +1,19 @@
 import { any } from '../../helpers/collections.ts';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
 import { IClientActionResultDto } from '../common/IClientActionResultDto.ts';
-import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
+import { ISavedProposal } from './CreateSeasonDialog.tsx';
 
 export interface ISavingProposalsProps {
     saveMessage: string;
-    noOfFixturesToSave: number;
-    saveResults: IClientActionResultDto<GameDto>[];
+    proposalsToSave: number;
+    savedProposals: ISavedProposal[];
     saving: boolean;
 }
 
 export function SavingProposals({
     saveMessage,
-    noOfFixturesToSave,
-    saveResults,
+    proposalsToSave,
+    savedProposals,
     saving,
 }: ISavingProposalsProps) {
     function renderError(e: string, i: number) {
@@ -37,20 +37,51 @@ export function SavingProposals({
     }
 
     function getPercentageComplete(): string {
-        const total: number = saveResults.length + noOfFixturesToSave;
-        const complete: number = saveResults.length;
+        const total: number = savedProposals.length + proposalsToSave;
+        const complete: number = savedProposals.length;
         const percentage: number = complete / total;
 
         return (percentage * 100).toFixed(2);
     }
 
+    function failed(saved: ISavedProposal) {
+        return (
+            saved.fixture?.success === false || saved.note?.success === false
+        );
+    }
+
+    function renderErrors<T>(
+        index: string,
+        result?: IClientActionResultDto<T>,
+    ) {
+        if (!result) {
+            return null;
+        }
+
+        return (
+            <div key={index}>
+                {any(result.errors) ? (
+                    <ol>{result.errors!.map(renderError)}</ol>
+                ) : null}
+                {any(result.warnings) ? (
+                    <ol>{result.warnings!.map(renderWarning)}</ol>
+                ) : null}
+                {any(result.messages) ? (
+                    <ol>{result.messages!.map(renderMessage)}</ol>
+                ) : null}
+            </div>
+        );
+    }
+
     return (
         <div>
-            {saving && noOfFixturesToSave > 0 ? <LoadingSpinnerSmall /> : null}
-            {saveMessage}
+            <div className="min-height-50">
+                {saving && proposalsToSave > 0 ? <LoadingSpinnerSmall /> : null}
+                {saveMessage}
+            </div>
             <div>
-                {saveResults.length} fixtures of{' '}
-                {saveResults.length + noOfFixturesToSave} saved
+                {savedProposals.length} fixtures of{' '}
+                {savedProposals.length + proposalsToSave} saved
             </div>
             <div className="progress">
                 <div
@@ -61,37 +92,14 @@ export function SavingProposals({
                     aria-valuemin={0}
                     aria-valuemax={100}></div>
             </div>
-            {any(
-                saveResults,
-                (r: IClientActionResultDto<GameDto>) => !r.success,
-            ) ? (
+            {any(savedProposals, failed) ? (
                 <div className="overflow-auto max-height-250">
-                    {saveResults
-                        .filter(
-                            (r: IClientActionResultDto<GameDto>) => !r.success,
-                        )
-                        .map(
-                            (
-                                r: IClientActionResultDto<GameDto>,
-                                index: number,
-                            ) => (
-                                <div key={index}>
-                                    {any(r.errors) ? (
-                                        <ol>{r.errors!.map(renderError)}</ol>
-                                    ) : null}
-                                    {any(r.warnings) ? (
-                                        <ol>
-                                            {r.warnings!.map(renderWarning)}
-                                        </ol>
-                                    ) : null}
-                                    {any(r.messages) ? (
-                                        <ol>
-                                            {r.messages!.map(renderMessage)}
-                                        </ol>
-                                    ) : null}
-                                </div>
-                            ),
-                        )}
+                    {savedProposals
+                        .filter(failed)
+                        .flatMap((r: ISavedProposal, index: number) => [
+                            renderErrors(index + 'fixture', r.fixture),
+                            renderErrors(index + 'note', r.note),
+                        ])}
                 </div>
             ) : null}
         </div>

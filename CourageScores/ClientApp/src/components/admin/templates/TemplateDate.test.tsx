@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer.tsx';
+import { AdminContainer } from '../AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,10 +7,12 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests.tsx';
+} from '../../../helpers/tests.tsx';
 import { ITemplateDateProps, TemplateDate } from './TemplateDate.tsx';
-import { DateTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
-import { FixtureTemplateDto } from '../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { DateTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DateTemplateDto.ts';
+import { FixtureTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto.ts';
+import { createTemporaryId } from '../../../helpers/projection.ts';
+import { NoteTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/NoteTemplateDto';
 
 describe('TemplateDate', () => {
     let context: TestContext;
@@ -48,34 +50,45 @@ describe('TemplateDate', () => {
         deleteDatesContaining = mnemonic;
     }
 
-    async function renderComponent(props: ITemplateDateProps) {
+    function getCrossDivisionalNotes() {
+        return [];
+    }
+
+    async function renderComponent(props: Partial<ITemplateDateProps>) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
             <AdminContainer tables={[]} accounts={[]}>
-                <TemplateDate {...props} />
+                <TemplateDate
+                    {...{
+                        date: {
+                            fixtures: [],
+                        },
+                        divisionSharedAddresses: [],
+                        templateSharedAddresses: [],
+                        onUpdate,
+                        onDelete,
+                        highlight: '',
+                        setHighlight,
+                        deleteDates,
+                        divisionNo: 1,
+                        getCrossDivisionalNotes,
+                        ...props,
+                    }}
+                />
             </AdminContainer>,
         );
     }
 
     describe('renders', () => {
         it('empty fixtures', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
-            const fixtures = context.all('div > button');
-            expect(fixtures.map((f) => f.text())).toEqual(['🗑️', '⬆', '⬇']);
+            const fixtures = context.all(
+                'span[data-type="fixture-buttons"] > button',
+            );
+            expect(fixtures.map((f) => f.text())).toEqual(['⬆', '⬇', '🗑️']);
         });
 
         it('existing fixture', async () => {
@@ -87,21 +100,14 @@ describe('TemplateDate', () => {
                 date: {
                     fixtures: [fixture],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             expect(fixtures.map((f) => f.text())).toEqual([
                 'A - B ×',
-                '🗑️',
                 '⬆',
                 '⬇',
+                '🗑️',
             ]);
         });
 
@@ -113,21 +119,14 @@ describe('TemplateDate', () => {
                 date: {
                     fixtures: [fixture],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             expect(fixtures.map((f) => f.text())).toEqual([
                 'A ×',
-                '🗑️',
                 '⬆',
                 '⬇',
+                '🗑️',
             ]);
         });
 
@@ -139,16 +138,10 @@ describe('TemplateDate', () => {
                 date: {
                     fixtures: [fixture],
                 },
-                divisionSharedAddresses: [],
                 templateSharedAddresses: ['A', 'B'],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             const fixtureElement = fixtures[0].required('span:first-child');
             expect(fixtureElement.className()).toContain(
                 'bg-warning text-light',
@@ -164,15 +157,9 @@ describe('TemplateDate', () => {
                     fixtures: [fixture],
                 },
                 divisionSharedAddresses: ['A', 'B'],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             const fixtureElement = fixtures[0].required('span:first-child');
             expect(fixtureElement.className()).toContain(
                 'bg-secondary text-light',
@@ -189,14 +176,9 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: ['A', 'B'],
                 templateSharedAddresses: ['A', 'B'],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             const fixtureElement = fixtures[0].required('span:first-child');
             expect(fixtureElement.className()).toContain(
                 'bg-secondary text-light',
@@ -213,14 +195,10 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: ['A', 'B'],
                 templateSharedAddresses: ['A', 'B'],
-                onUpdate,
-                onDelete,
                 highlight: 'A',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             const fixtureElement = fixtures[0].required('span:first-child');
             expect(fixtureElement.className()).toContain('bg-danger');
         });
@@ -236,36 +214,37 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: ['A', 'B'],
                 templateSharedAddresses: ['A', 'B'],
-                onUpdate,
-                onDelete,
                 highlight: 'B',
-                setHighlight,
-                deleteDates,
             });
 
-            const fixtures = context.all('div > button');
+            const fixtures = context.all('button[data-type="fixture"]');
             const fixtureElement = fixtures[0].required('span:nth-child(3)');
             expect(fixtureElement.className()).toContain('bg-danger');
+        });
+
+        it('template notes', async () => {
+            await renderComponent({
+                date: {
+                    notes: [
+                        {
+                            id: createTemporaryId(),
+                            note: 'NOTE',
+                        },
+                    ],
+                },
+            });
+
+            const notes = context.all('button[data-type="note"]');
+            expect(notes.map((n) => n.text())).toEqual(['NOTE ✏️']);
         });
     });
 
     describe('interactivity', () => {
         it('can add league fixture (Button press)', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
             await context.input('spec').change('A-B');
-            await context.button('➕').click();
+            await context.required('span').button('➕').click();
 
             expect(update).toEqual({
                 fixtures: [
@@ -278,18 +257,7 @@ describe('TemplateDate', () => {
         });
 
         it('can add league fixture (Enter key press)', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
             await context.input('spec').change('A-B');
             await context.input('spec').type('{Enter}');
@@ -305,21 +273,10 @@ describe('TemplateDate', () => {
         });
 
         it('cannot add fixture without a home team (Button press)', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
             await context.input('spec').change('-B');
-            await context.button('➕').click();
+            await context.required('span').button('➕').click();
 
             context.prompts.alertWasShown(
                 'Enter a spec in the format: "home[ - away]"',
@@ -328,18 +285,7 @@ describe('TemplateDate', () => {
         });
 
         it('cannot add fixture without a home team (Enter key press)', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
             await context.input('spec').change('-B');
             await context.input('spec').type('{Enter}');
@@ -351,21 +297,10 @@ describe('TemplateDate', () => {
         });
 
         it('can add bye fixture', async () => {
-            await renderComponent({
-                date: {
-                    fixtures: [],
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
-            });
+            await renderComponent({});
 
             await context.input('spec').change('A');
-            await context.button('➕').click();
+            await context.required('span').button('➕').click();
 
             expect(update).toEqual({
                 fixtures: [
@@ -386,13 +321,6 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
             await context.button('A - B ×').click();
@@ -411,13 +339,6 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
             await context.button('A ×').click();
@@ -437,13 +358,6 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
             await context.button('🗑️').click();
@@ -461,13 +375,6 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
             await context
@@ -487,13 +394,6 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
-                highlight: '',
-                setHighlight,
-                deleteDates,
             });
 
             await context
@@ -514,13 +414,7 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
                 highlight: 'A',
-                setHighlight,
-                deleteDates,
             });
 
             await context
@@ -541,13 +435,7 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
                 highlight: 'A',
-                setHighlight,
-                deleteDates,
             });
 
             await context
@@ -568,13 +456,7 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
                 highlight: 'A',
-                setHighlight,
-                deleteDates,
             });
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete all fixtures where A are playing?',
@@ -599,13 +481,7 @@ describe('TemplateDate', () => {
                         },
                     ],
                 },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                onDelete,
                 highlight: 'B',
-                setHighlight,
-                deleteDates,
             });
             context.prompts.respondToConfirm(
                 'Are you sure you want to delete all fixtures where B are playing?',
@@ -617,6 +493,109 @@ describe('TemplateDate', () => {
             expect(update).toBeNull();
             expect(deleteDatesContaining).toEqual('B');
             expect(highlightedMnemonic).toBeUndefined();
+        });
+
+        it('can add a note', async () => {
+            await renderComponent({
+                date: {
+                    notes: [],
+                },
+                divisionNo: 2,
+            });
+
+            await context
+                .required('span[data-type="notes"]')
+                .button('➕')
+                .click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.input('note').change('NEW NOTE');
+            await dialog.button('Save').click();
+
+            expect(context.optional('.modal-dialog')).toBeFalsy();
+            expect(update).toEqual({
+                notes: [
+                    {
+                        id: expect.any(String),
+                        note: 'NEW NOTE',
+                    },
+                ],
+            });
+        });
+
+        it('cannot add an empty note', async () => {
+            await renderComponent({
+                date: {
+                    notes: [],
+                },
+                divisionNo: 2,
+            });
+
+            await context
+                .required('span[data-type="notes"]')
+                .button('➕')
+                .click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.button('Save').click();
+
+            expect(context.optional('.modal-dialog')).toBeTruthy();
+            expect(update).toBeNull();
+            context.prompts.alertWasShown('Enter some text for the note');
+        });
+
+        it('can edit note', async () => {
+            const note: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'NOTE',
+            };
+            await renderComponent({
+                date: {
+                    notes: [note],
+                },
+                divisionNo: 2,
+            });
+
+            await context.button('NOTE ✏️').click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.required('textarea').change('NEW NOTE');
+            await dialog.required('select[name="divisionNumber"]').change('2');
+            await dialog
+                .required('select[name="alternativeDayOfWeek"]')
+                .change('Wednesday');
+            await dialog.button('Save').click();
+
+            expect(context.optional('.modal-dialog')).toBeFalsy();
+            expect(update).toEqual({
+                notes: [
+                    {
+                        ...note,
+                        note: 'NEW NOTE',
+                        divisionNumber: '2',
+                        alternativeDayOfWeek: 'Wednesday',
+                    },
+                ],
+            });
+        });
+
+        it('can delete note', async () => {
+            const note: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'NOTE',
+            };
+            await renderComponent({
+                date: {
+                    notes: [note],
+                },
+                divisionNo: 2,
+            });
+
+            await context.button('NOTE ✏️').click();
+            const dialog = context.required('.modal-dialog');
+            await dialog.button('Remove').click();
+
+            expect(context.optional('.modal-dialog')).toBeFalsy();
+            expect(update).toEqual({
+                notes: [],
+            });
         });
     });
 });

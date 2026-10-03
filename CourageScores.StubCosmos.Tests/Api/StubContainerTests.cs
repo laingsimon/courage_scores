@@ -243,7 +243,7 @@ or ID = '{expectedRecord2.Id}'");
         await _container.UpsertItemAsync(replacementItem);
         Assert.That(
             await StubContainerTestData.GetRows(_container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
-            Has.One.Matches<TestRecord>(r => r.Id == replacementItem.Id && r.Name == replacementItem.Name));
+            Has.One.Matches<TestRecord>(r => r?.Id == replacementItem.Id && r.Name == replacementItem.Name));
 
         await _container.ResetToSnapshot("snapshot");
         Assert.That(

@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer.tsx';
+import { AdminContainer } from '../AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -7,12 +7,14 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests.tsx';
+} from '../../../helpers/tests.tsx';
 import {
     ITemplateDivisionsProps,
     TemplateDivisions,
 } from './TemplateDivisions.tsx';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { DivisionTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
+import { NoteTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/NoteTemplateDto';
+import { createTemporaryId } from '../../../helpers/projection.ts';
 
 describe('TemplateDivisions', () => {
     let context: TestContext;
@@ -34,39 +36,57 @@ describe('TemplateDivisions', () => {
 
     async function setHighlight(_?: string) {}
 
-    async function renderComponent(props: ITemplateDivisionsProps) {
+    function formatNotes(context: TestContext, divisionNumber: number) {
+        const division = context.required(
+            `li[data-type="division"]:nth-child(${divisionNumber + 1})`,
+        );
+
+        return division
+            .all('li')
+            .filter((_, index) => index >= 2)
+            .map((date) =>
+                date
+                    .all('span[data-type="notes"] button')
+                    .map((note) => note.text().replaceAll(' ✏️', ''))
+                    .filter((n) => n !== '➕')
+                    .concat(
+                        date
+                            .all('span[data-type="note"]')
+                            .map((n) => `_${n.text()}_`),
+                    ),
+            );
+    }
+
+    async function renderComponent(props: Partial<ITemplateDivisionsProps>) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
             <AdminContainer accounts={[]} tables={[]}>
-                <TemplateDivisions {...props} />
+                <TemplateDivisions
+                    {...{
+                        divisions: [],
+                        templateSharedAddresses: [],
+                        onUpdate,
+                        highlight: '',
+                        setHighlight,
+                        ...props,
+                    }}
+                />
             </AdminContainer>,
         );
     }
 
     describe('renders', () => {
         it('heading', async () => {
-            await renderComponent({
-                divisions: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             const prefix = context.required('ul li:first-child');
             expect(prefix.text()).toEqual('Divisions');
         });
 
         it('when empty divisions', async () => {
-            await renderComponent({
-                divisions: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             const divisionElements = context.all('ul li');
             expect(divisionElements.length).toEqual(1); // heading
@@ -80,10 +100,6 @@ describe('TemplateDivisions', () => {
                         sharedAddresses: [],
                     },
                 ],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
             });
 
             const divisionElement = context.required('ul li:nth-child(2)');
@@ -91,17 +107,52 @@ describe('TemplateDivisions', () => {
                 'Division 1 (click to collapse)',
             );
         });
+
+        it('cross-divisional notes for the same date', async () => {
+            const div1Note: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'DIV 1 NOTE',
+                divisionNumber: 1,
+            };
+            const div1NoteXDivision: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'DIV 1 NOTE (x-divisional)',
+            };
+            const div2Note: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'DIV 2 NOTE',
+                divisionNumber: 2,
+            };
+            const div2NoteXDivision: NoteTemplateDto = {
+                id: createTemporaryId(),
+                note: 'DIV 2 NOTE (x-divisional)',
+            };
+            const division1 = {
+                dates: [{ notes: [div1Note, div1NoteXDivision] }, {}],
+                sharedAddresses: [],
+            };
+            const division2 = {
+                dates: [{ notes: [div2Note] }, { notes: [div2NoteXDivision] }],
+                sharedAddresses: [],
+            };
+            await renderComponent({
+                divisions: [division1, division2],
+            });
+
+            expect(formatNotes(context, 1)).toEqual([
+                ['DIV 1 NOTE', 'DIV 1 NOTE (x-divisional)'],
+                ['_DIV 2 NOTE (x-divisional)_'],
+            ]);
+            expect(formatNotes(context, 2)).toEqual([
+                ['DIV 2 NOTE', '_DIV 1 NOTE (x-divisional)_'],
+                ['DIV 2 NOTE (x-divisional)'],
+            ]);
+        });
     });
 
     describe('interactivity', () => {
         it('can add a division', async () => {
-            await renderComponent({
-                divisions: [],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
-            });
+            await renderComponent({});
 
             await context.button('➕ Add another division').click();
 
@@ -121,10 +172,6 @@ describe('TemplateDivisions', () => {
                         sharedAddresses: [],
                     },
                 ],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('🗑️ Remove division').click();
@@ -144,10 +191,6 @@ describe('TemplateDivisions', () => {
                         sharedAddresses: [['B']],
                     },
                 ],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
             });
 
             await context
@@ -191,10 +234,6 @@ describe('TemplateDivisions', () => {
                         sharedAddresses: [['B']],
                     },
                 ],
-                templateSharedAddresses: [],
-                onUpdate,
-                highlight: '',
-                setHighlight,
             });
 
             await context.button('Copy to division 2').click();
