@@ -5,7 +5,6 @@ import {
     cleanUp,
     ErrorState,
     iocProps,
-    noop,
     renderApp,
     TestContext,
 } from '../../helpers/tests.tsx';
@@ -27,19 +26,20 @@ import { EditGameDto } from '../../interfaces/models/dtos/Game/EditGameDto.ts';
 import { GameDto } from '../../interfaces/models/dtos/Game/GameDto.ts';
 import { IAppContainerProps } from '../common/AppContainer.tsx';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto.ts';
-import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto.ts';
-import { DivisionTemplateDto } from '../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto.ts';
 import { DivisionDataDto } from '../../interfaces/models/dtos/Division/DivisionDataDto.ts';
 import { teamBuilder } from '../../helpers/builders/teams.ts';
 import {
     divisionBuilder,
     fixtureDateBuilder,
+    IDivisionFixtureBuilder,
+    INoteBuilder,
 } from '../../helpers/builders/divisions.ts';
 import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { ISeasonTemplateApi } from '../../interfaces/apis/ISeasonTemplateApi.ts';
 import { IGameApi } from '../../interfaces/apis/IGameApi.ts';
 import { INoteApi } from '../../interfaces/apis/INoteApi.ts';
 import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
+import { DivisionDto } from '../../interfaces/models/dtos/DivisionDto';
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
@@ -64,6 +64,7 @@ describe('CreateSeasonDialog', () => {
           ) => Promise<IClientActionResultDto<FixtureDateNoteDto>>)
         | null;
     let divisionReloaded: boolean;
+    let divisionDataSetTo: DivisionDataDto | undefined;
 
     const templateApi = api<ISeasonTemplateApi>({
         async getCompatibility(seasonId: string) {
@@ -74,9 +75,6 @@ describe('CreateSeasonDialog', () => {
             return (
                 apiResponse || {
                     success: false,
-                    errors: [],
-                    warnings: [],
-                    messages: [],
                 }
             );
         },
@@ -111,11 +109,16 @@ describe('CreateSeasonDialog', () => {
         closed = true;
     }
 
+    async function setDivisionData(d?: DivisionDataDto) {
+        divisionDataSetTo = d;
+    }
+
     afterEach(async () => {
         await cleanUp(context);
     });
 
     beforeEach(() => {
+        divisionDataSetTo = undefined;
         updatedFixtures = [];
         updatedNotes = [];
         divisionReloaded = false;
@@ -141,13 +144,13 @@ describe('CreateSeasonDialog', () => {
 
     async function renderComponent(
         appContainerProps: IAppContainerProps,
-        divisionDataProps: Partial<IDivisionDataContainerProps> | null,
         props: Partial<ICreateSeasonDialogProps>,
+        divisionDataProps?: Partial<IDivisionDataContainerProps>,
     ) {
         const ddProps: IDivisionDataContainerProps = {
             name: '',
             onReloadDivision,
-            setDivisionData: noop,
+            setDivisionData,
             ...divisionDataProps,
         };
         context = await renderApp(
@@ -186,9 +189,6 @@ describe('CreateSeasonDialog', () => {
                 name: 'TEMPLATE',
                 templateHealth: {
                     checks: {},
-                    errors: [],
-                    warnings: [],
-                    messages: [],
                 },
             },
         );
@@ -199,9 +199,6 @@ describe('CreateSeasonDialog', () => {
                 {
                     success: true,
                     result: template,
-                    errors: [],
-                    warnings: [],
-                    messages: [],
                 },
             ],
         };
@@ -217,9 +214,6 @@ describe('CreateSeasonDialog', () => {
                 {
                     proposalHealth: {
                         checks: {},
-                        errors: [],
-                        warnings: [],
-                        messages: [],
                     },
                 },
                 resultProps,
@@ -244,26 +238,41 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function getSeason(
-        seasonId?: string,
-        divisionId?: string,
-        anotherDivisionId?: string,
-    ) {
-        let builder = seasonBuilder('SEASON', seasonId);
-
-        if (divisionId) {
-            builder = builder.withDivision(divisionId);
-        }
-
-        if (anotherDivisionId) {
-            builder = builder.withDivision(anotherDivisionId);
-        }
+    function getSeason(s?: string, d?: DivisionDto, ad?: DivisionDto) {
+        let builder = seasonBuilder('SEASON', s);
+        builder = d ? builder.withDivision(d) : builder;
+        builder = ad ? builder.withDivision(ad) : builder;
 
         return builder.build();
     }
 
     function team(name: string): TeamDto {
         return teamBuilder(name).build();
+    }
+
+    function homeAwayFixture(f: IDivisionFixtureBuilder) {
+        return f.playing(team('home'), team('away'));
+    }
+
+    function homeAwayProposal(f: IDivisionFixtureBuilder) {
+        return f.proposal().playing(team('home'), team('away'));
+    }
+
+    function byeProposal(f: IDivisionFixtureBuilder) {
+        return f.proposal().bye(teamBuilder('anywhere').build());
+    }
+
+    function homeAwayProposalN(d: number, n: number) {
+        const suffix = `${d}.${n}`;
+
+        return (f: IDivisionFixtureBuilder) =>
+            f
+                .proposal()
+                .playing(team(`HOME ${suffix} `), team('AWAY ${suffix}'));
+    }
+
+    function existingNote(b: INoteBuilder) {
+        return b.note('existing note').updated('some time');
     }
 
     describe('renders', () => {
@@ -274,36 +283,30 @@ describe('CreateSeasonDialog', () => {
         describe('5- confirm save', () => {
             const seasonId = createTemporaryId();
             const templateId = createTemporaryId();
-            const divisionId = createTemporaryId();
-            const anotherDivisionId = createTemporaryId();
+            const division = divisionBuilder('DIVISION 1').build();
+            const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
             const team1 = teamBuilder('TEAM 1')
-                .forSeason(seasonId, divisionId)
+                .forSeason(seasonId, division)
                 .build();
             const team2 = teamBuilder('TEAM 2')
-                .forSeason(seasonId, anotherDivisionId)
+                .forSeason(seasonId, anotherDivision)
                 .build();
 
             it('prompt before starting save', async () => {
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
                     appProps({
-                        divisions: [
-                            divisionBuilder('DIVISION 1', divisionId).build(),
-                            divisionBuilder(
-                                'ANOTHER DIVISION',
-                                anotherDivisionId,
-                            ).build(),
-                        ],
+                        divisions: [division, anotherDivision],
                         seasons: [
-                            getSeason(seasonId, divisionId, anotherDivisionId),
+                            getSeason(seasonId, division, anotherDivision),
                         ],
                         teams: [team1, team2],
                     }),
                     {
-                        id: divisionId,
+                        seasonId: seasonId,
                     },
                     {
-                        seasonId: seasonId,
+                        id: division.id,
                     },
                 );
                 await context.required('.dropdown-menu').select('TEMPLATE');
@@ -311,69 +314,23 @@ describe('CreateSeasonDialog', () => {
                 setApiResponse(true, {
                     divisions: [
                         {
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
+                            ...division,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('home'),
-                                                    team('away'),
-                                                ),
-                                        '1.1',
-                                    )
+                                    .withFixture(homeAwayProposal, '1.1')
                                     .withNote((b) => b.note('proposed note'))
-                                    .withNote((b) =>
-                                        b
-                                            .note('existing note')
-                                            .updated('some time'),
-                                    )
-                                    .withFixture(
-                                        (f) =>
-                                            f.playing(
-                                                team('home'),
-                                                team('away'),
-                                            ),
-                                        '1.2',
-                                    ) // excluded as not a proposal
+                                    .withNote(existingNote)
+                                    .withFixture(homeAwayFixture, '1.2') // excluded as not a proposal
                                     .build(),
                             ],
                         },
                         {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
+                            ...anotherDivision,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('home'),
-                                                    team('away'),
-                                                ),
-                                        '2.1',
-                                    )
-                                    .withFixture((f) =>
-                                        f
-                                            .proposal()
-                                            .bye(
-                                                teamBuilder('anywhere').build(),
-                                            ),
-                                    ) // excluded as awayTeam == undefined
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('home'),
-                                                    team('away'),
-                                                ),
-                                        '2.3',
-                                    )
+                                    .withFixture(homeAwayProposal, '2.1')
+                                    .withFixture(byeProposal) // excluded as awayTeam == undefined
+                                    .withFixture(homeAwayProposal, '2.3')
                                     .build(),
                             ],
                         },
@@ -401,16 +358,19 @@ describe('CreateSeasonDialog', () => {
     });
 
     describe('interactivity', () => {
-        describe('1- pick', () => {
-            const seasonId = createTemporaryId();
-            const division = divisionBuilder('DIVISION 1').build();
-            const team1 = teamBuilder('TEAM 1')
-                .forSeason(seasonId, division)
-                .build();
-            const team2 = teamBuilder('TEAM 2')
-                .forSeason(seasonId, createTemporaryId())
-                .build();
+        const seasonId = createTemporaryId();
+        const division = divisionBuilder('DIVISION 1').build();
+        const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
+        const team1 = teamBuilder('TEAM 1')
+            .forSeason(seasonId, division)
+            .build();
+        const team2 = teamBuilder('TEAM 2')
+            .address('TEAM 2 ADDRESS')
+            .forSeason(seasonId, anotherDivision.id)
+            .build();
+        const templateId = createTemporaryId();
 
+        describe('1- pick', () => {
             it('prevents proposal of fixtures for incompatible template', async () => {
                 addIncompatibleResponse(seasonId, createTemporaryId());
                 await renderComponent(
@@ -419,7 +379,6 @@ describe('CreateSeasonDialog', () => {
                         seasons: [getSeason(seasonId)],
                         teams: [team1, team2],
                     }),
-                    null,
                     {
                         seasonId: seasonId,
                     },
@@ -437,7 +396,6 @@ describe('CreateSeasonDialog', () => {
             });
 
             it('cannot navigate back', async () => {
-                const templateId = createTemporaryId();
                 setApiResponse(true, { id: templateId });
 
                 await renderComponent(
@@ -445,7 +403,6 @@ describe('CreateSeasonDialog', () => {
                         divisions: [],
                         seasons: [],
                     }),
-                    null,
                     {
                         seasonId: createTemporaryId(),
                     },
@@ -455,15 +412,13 @@ describe('CreateSeasonDialog', () => {
             });
 
             it('moves to (2) assign-placeholders', async () => {
-                const templateId = createTemporaryId();
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
                     appProps({
                         divisions: [division],
-                        seasons: [getSeason(seasonId, division.id)],
+                        seasons: [getSeason(seasonId, division)],
                         teams: [team1, team2],
                     }),
-                    null,
                     {
                         seasonId: seasonId,
                     },
@@ -480,37 +435,20 @@ describe('CreateSeasonDialog', () => {
         });
 
         describe('2- assign placeholders', () => {
-            const seasonId = createTemporaryId();
-            const templateId = createTemporaryId();
-            const division: DivisionDto = divisionBuilder('DIVISION 1').build();
-            const anotherDivision: DivisionDto =
-                divisionBuilder('ANOTHER DIVISION').build();
-            const team1: TeamDto = teamBuilder('TEAM 1')
-                .forSeason(seasonId, division)
-                .address('TEAM 1')
-                .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
-                .address('SHARED')
+            const team3 = teamBuilder('TEAM 3')
+                .address(team2.address)
                 .forSeason(seasonId, anotherDivision)
                 .build();
-            const team3: TeamDto = teamBuilder('TEAM 3')
-                .address('SHARED')
-                .forSeason(seasonId, anotherDivision)
-                .build();
-            const team4: TeamDto = teamBuilder('TEAM 4')
+            const team4 = teamBuilder('TEAM 4')
                 .address('TEAM 4')
                 .forSeason(seasonId, division)
                 .build();
 
             beforeEach(async () => {
-                const response: IClientActionResultDto<
-                    ActionResultDto<TemplateDto>[]
-                > = addCompatibleResponse(seasonId, templateId);
-                const template: TemplateDto = response.result![0].result!;
-                const anotherDivisionTemplate: DivisionTemplateDto =
-                    template.divisions![0];
-                const division1Template: DivisionTemplateDto =
-                    template.divisions![1];
+                const response = addCompatibleResponse(seasonId, templateId);
+                const template = response.result![0].result!;
+                const anotherDivisionTemplate = template.divisions![0];
+                const division1Template = template.divisions![1];
                 template.sharedAddresses = [['A', 'B']];
                 anotherDivisionTemplate.sharedAddresses = [['A', 'C']];
                 anotherDivisionTemplate.dates = [
@@ -530,15 +468,10 @@ describe('CreateSeasonDialog', () => {
                     appProps({
                         divisions: [division, anotherDivision],
                         seasons: [
-                            getSeason(
-                                seasonId,
-                                division.id,
-                                anotherDivision.id,
-                            ),
+                            getSeason(seasonId, division, anotherDivision),
                         ],
                         teams: [team1, team2, team3, team4],
                     }),
-                    null,
                     {
                         seasonId: seasonId,
                     },
@@ -572,38 +505,20 @@ describe('CreateSeasonDialog', () => {
         });
 
         describe('3- review', () => {
-            const seasonId = createTemporaryId();
-            const templateId = createTemporaryId();
-            const divisionId = createTemporaryId();
-            const team1: TeamDto = teamBuilder('TEAM 1')
-                .forSeason(seasonId, divisionId)
-                .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
-                .forSeason(seasonId, divisionId)
-                .build();
-            let divisionDataSetTo: DivisionDataDto | undefined;
-
             beforeEach(async () => {
-                divisionDataSetTo = undefined;
-
                 addCompatibleResponse(seasonId, templateId);
 
                 await renderComponent(
                     appProps({
-                        divisions: [
-                            divisionBuilder('DIVISION', divisionId).build(),
-                        ],
-                        seasons: [getSeason(seasonId, divisionId)],
+                        divisions: [division],
+                        seasons: [getSeason(seasonId, division)],
                         teams: [team1, team2],
                     }),
                     {
-                        id: divisionId,
-                        setDivisionData: async (d?: DivisionDataDto) => {
-                            divisionDataSetTo = d;
-                        },
+                        seasonId: seasonId,
                     },
                     {
-                        seasonId: seasonId,
+                        id: division.id,
                     },
                 );
                 await context.required('.dropdown-menu').select('TEMPLATE');
@@ -612,7 +527,7 @@ describe('CreateSeasonDialog', () => {
                 setApiResponse(true, {
                     divisions: [
                         {
-                            id: divisionId,
+                            id: division.id,
                             name: 'PROPOSED DIVISION',
                             sharedAddresses: [],
                         },
@@ -636,7 +551,7 @@ describe('CreateSeasonDialog', () => {
 
                 reportedError.verifyNoError();
                 expect(divisionDataSetTo).toEqual({
-                    id: divisionId,
+                    id: division.id,
                     name: 'PROPOSED DIVISION',
                     sharedAddresses: [],
                 });
@@ -647,38 +562,21 @@ describe('CreateSeasonDialog', () => {
         });
 
         describe('4- review proposals', () => {
-            const seasonId = createTemporaryId();
-            const templateId = createTemporaryId();
-            const divisionId = createTemporaryId();
-            const anotherDivisionId = createTemporaryId();
-            const team1: TeamDto = teamBuilder('TEAM 1')
-                .forSeason(seasonId, divisionId)
-                .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
-                .forSeason(seasonId, anotherDivisionId)
-                .build();
-
             beforeEach(async () => {
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
                     appProps({
-                        divisions: [
-                            divisionBuilder('DIVISION 1', divisionId).build(),
-                            divisionBuilder(
-                                'ANOTHER DIVISION',
-                                anotherDivisionId,
-                            ).build(),
-                        ],
+                        divisions: [division, anotherDivision],
                         seasons: [
-                            getSeason(seasonId, divisionId, anotherDivisionId),
+                            getSeason(seasonId, division, anotherDivision),
                         ],
                         teams: [team1, team2],
                     }),
                     {
-                        id: divisionId,
+                        seasonId: seasonId,
                     },
                     {
-                        seasonId: seasonId,
+                        id: division.id,
                     },
                 );
 
@@ -687,57 +585,21 @@ describe('CreateSeasonDialog', () => {
                 setApiResponse(true, {
                     divisions: [
                         {
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
+                            ...division,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 1.1 '),
-                                                    team('AWAY 1.1'),
-                                                ),
-                                        '1.1',
-                                    )
-                                    .withFixture(
-                                        (f) =>
-                                            f.playing(
-                                                team('home'),
-                                                team('away'),
-                                            ),
-                                        '1.2',
-                                    ) // excluded as not a proposal
+                                    .withFixture(homeAwayProposalN(1, 1), '1.1')
+                                    .withFixture(homeAwayFixture, '1.2') // excluded as not a proposal
                                     .build(),
                             ],
                         },
                         {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
+                            ...anotherDivision,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 2.1 '),
-                                                    team('AWAY 2.1'),
-                                                ),
-                                        '2.1',
-                                    )
+                                    .withFixture(homeAwayProposalN(2, 1), '2.1')
                                     .withFixture((f) => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 2.3 '),
-                                                    team('AWAY 2.3'),
-                                                ),
-                                        '2.3',
-                                    )
+                                    .withFixture(homeAwayProposalN(2, 3), '2.3')
                                     .build(),
                             ],
                         },
@@ -772,44 +634,21 @@ describe('CreateSeasonDialog', () => {
         });
 
         describe('5- confirm save', () => {
-            const seasonId = createTemporaryId();
-            const templateId = createTemporaryId();
-            const divisionId = createTemporaryId();
-            const anotherDivisionId = createTemporaryId();
-            const team1: TeamDto = teamBuilder('TEAM 1')
-                .forSeason(seasonId, divisionId)
-                .build();
-            const team2: TeamDto = teamBuilder('TEAM 2')
-                .forSeason(seasonId, anotherDivisionId)
-                .build();
-            let divisionDataSetTo: DivisionDataDto | undefined;
-
             beforeEach(async () => {
-                divisionDataSetTo = undefined;
-
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
                     appProps({
-                        divisions: [
-                            divisionBuilder('DIVISION 1', divisionId).build(),
-                            divisionBuilder(
-                                'ANOTHER DIVISION',
-                                anotherDivisionId,
-                            ).build(),
-                        ],
+                        divisions: [division, anotherDivision],
                         seasons: [
-                            getSeason(seasonId, divisionId, anotherDivisionId),
+                            getSeason(seasonId, division, anotherDivision),
                         ],
                         teams: [team1, team2],
                     }),
                     {
-                        id: divisionId,
-                        setDivisionData: async (d?: DivisionDataDto) => {
-                            divisionDataSetTo = d;
-                        },
+                        seasonId: seasonId,
                     },
                     {
-                        seasonId: seasonId,
+                        id: division.id,
                     },
                 );
 
@@ -818,63 +657,23 @@ describe('CreateSeasonDialog', () => {
                 setApiResponse(true, {
                     divisions: [
                         {
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
+                            ...division,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 1.1 '),
-                                                    team('AWAY 1.1'),
-                                                ),
-                                        '1.1',
-                                    )
+                                    .withFixture(homeAwayProposalN(1, 1), '1.1')
                                     .withNote((b) => b.note('proposed note'))
-                                    .withNote((b) =>
-                                        b
-                                            .note('existing note')
-                                            .updated('some time'),
-                                    ) // excluded as not a proposal
-                                    .withFixture(
-                                        (f) =>
-                                            f.playing(
-                                                team('home'),
-                                                team('away'),
-                                            ),
-                                        '1.2',
-                                    ) // excluded as not a proposal
+                                    .withNote(existingNote) // excluded as not a proposal
+                                    .withFixture(homeAwayFixture, '1.2') // excluded as not a proposal
                                     .build(),
                             ],
                         },
                         {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
+                            ...anotherDivision,
                             fixtures: [
                                 fixtureDateBuilder('2023-01-01')
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 2.1 '),
-                                                    team('AWAY 2.1'),
-                                                ),
-                                        '2.1',
-                                    )
+                                    .withFixture(homeAwayProposalN(2, 1), '2.1')
                                     .withFixture((f) => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(
-                                        (f) =>
-                                            f
-                                                .proposal()
-                                                .playing(
-                                                    team('HOME 2.3 '),
-                                                    team('AWAY 2.3'),
-                                                ),
-                                        '2.3',
-                                    )
+                                    .withFixture(homeAwayProposalN(2, 3), '2.3')
                                     .build(),
                             ],
                         },
@@ -916,8 +715,6 @@ describe('CreateSeasonDialog', () => {
                     return {
                         success: false,
                         errors: ['SOME ERROR'],
-                        warnings: [],
-                        messages: [],
                     };
                 };
 
@@ -939,8 +736,6 @@ describe('CreateSeasonDialog', () => {
                     return {
                         success: false,
                         errors: ['SOME ERROR'],
-                        warnings: [],
-                        messages: [],
                     };
                 };
 
@@ -978,9 +773,6 @@ describe('CreateSeasonDialog', () => {
 
         describe('general', () => {
             it('can close the dialog', async () => {
-                const seasonId = createTemporaryId();
-                const templateId = createTemporaryId();
-                let divisionDataResetTo: DivisionDataDto | undefined;
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(
                     appProps({
@@ -988,11 +780,6 @@ describe('CreateSeasonDialog', () => {
                         seasons: [],
                         teams: [],
                     }),
-                    {
-                        setDivisionData: async (d?: DivisionDataDto) => {
-                            divisionDataResetTo = d;
-                        },
-                    },
                     {
                         seasonId: seasonId,
                     },
@@ -1002,7 +789,7 @@ describe('CreateSeasonDialog', () => {
                 await context.button('Close').click();
 
                 reportedError.verifyNoError();
-                expect(divisionDataResetTo).toBeUndefined();
+                expect(divisionDataSetTo).toBeUndefined();
                 expect(closed).toEqual(true);
             });
         });
