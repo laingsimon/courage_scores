@@ -109,7 +109,7 @@ export function DivisionFixtures({ setNewFixtures }: IDivisionFixturesProps) {
             allLeagueFixturesLength > 1 ? (
                 <div
                     key="mid-season-marker"
-                    className="border-1 border-top border-success-subtle pt-1 position-relative">
+                    className="border-1 border-top border-success-subtle pt-1 position-relative z-1051">
                     <div className="position-absolute right-0">
                         <div className="no-wrap text-center bg-success-subtle p-2 top-negative-15 position-relative">
                             Second half ⬇️
