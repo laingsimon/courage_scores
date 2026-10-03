@@ -25,23 +25,32 @@ import { DivisionFixtureDto } from '../../interfaces/models/dtos/Division/Divisi
 import { DivisionFixtureDateDto } from '../../interfaces/models/dtos/Division/DivisionFixtureDateDto.ts';
 import { UntypedPromise } from '../../interfaces/UntypedPromise.ts';
 import { asyncCallback } from '../../helpers/events.ts';
+import { FixtureDateNoteDto } from '../../interfaces/models/dtos/FixtureDateNoteDto';
+import { createTemporaryId } from '../../helpers/projection.ts';
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
     onClose(): UntypedPromise;
 }
 
-export interface IFixtureToSave {
-    fixture: DivisionFixtureDto;
+export interface IProposal {
+    note?: FixtureDateNoteDto;
+    fixture?: DivisionFixtureDto;
     date: DivisionFixtureDateDto;
     division: DivisionDataDto;
+}
+
+export interface ISavedProposal {
+    proposal: IProposal;
+    fixture?: IClientActionResultDto<GameDto>;
+    note?: IClientActionResultDto<FixtureDateNoteDto>;
 }
 
 export function CreateSeasonDialog({
     seasonId,
     onClose,
 }: ICreateSeasonDialogProps) {
-    const { templateApi, gameApi } = useDependencies();
+    const { templateApi, gameApi, noteApi } = useDependencies();
     const { onError, divisions, reloadAll } = useApp();
     const { id, setDivisionData, onReloadDivision } = useDivisionData();
     const [loading, setLoading] = useState<boolean>(false);
@@ -56,11 +65,9 @@ export function CreateSeasonDialog({
         useState<IClientActionResultDto<ProposalResultDto> | null>(null);
     const [selectedDivisionId, setSelectedDivisionId] = useState<string>(id!);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
-    const [fixturesToSave, setFixturesToSave] = useState<IFixtureToSave[]>([]);
+    const [proposals, setProposals] = useState<IProposal[]>([]);
     const [savingProposal, setSavingProposal] = useState<boolean>(false);
-    const [saveResults, setSaveResults] = useState<
-        IClientActionResultDto<GameDto>[]
-    >([]);
+    const [saveResults, setSaveResults] = useState<ISavedProposal[]>([]);
     const [placeholderMappings, setPlaceholderMappings] =
         useState<IPlaceholderMappings | null>(null);
 
@@ -131,20 +138,34 @@ export function CreateSeasonDialog({
                 return;
             }
             case '4-review-proposals': {
-                const toSave: IFixtureToSave[] = response!
-                    .result!.divisions!.flatMap((d: DivisionDataDto) =>
-                        d.fixtures!.flatMap((fd: DivisionFixtureDateDto) =>
-                            fd.fixtures!.map((f: DivisionFixtureDto) => {
-                                return { fixture: f, date: fd, division: d };
-                            }),
-                        ),
-                    )
-                    .filter(
-                        (f: IFixtureToSave) =>
-                            f.fixture.proposal && f.fixture.awayTeam,
+                const proposals: IProposal[] =
+                    response!.result!.divisions!.flatMap((d: DivisionDataDto) =>
+                        d
+                            .fixtures!.flatMap(
+                                (fd: DivisionFixtureDateDto) =>
+                                    fd.fixtures
+                                        ?.map((f): IProposal => ({
+                                            fixture: f,
+                                            date: fd,
+                                            division: d,
+                                        }))
+                                        .concat(
+                                            fd.notes?.map((n): IProposal => ({
+                                                date: fd,
+                                                division: d,
+                                                note: n,
+                                            })) ?? [],
+                                        ) ?? [],
+                            )
+                            .filter(
+                                (f: IProposal) =>
+                                    (f.fixture?.proposal &&
+                                        f.fixture?.awayTeam) ||
+                                    (f.note && !f.note.updated),
+                            ),
                     );
 
-                setFixturesToSave(toSave);
+                setProposals(proposals);
                 setStage('5-confirm-save');
                 break;
             }
@@ -202,12 +223,12 @@ export function CreateSeasonDialog({
 
     useEffect(
         () => {
-            if (stage !== '6-saving' || fixturesToSave == null) {
+            if (stage !== '6-saving' || proposals == null) {
                 return;
             }
 
             // save a fixture and pop it off the list
-            if (!any(fixturesToSave) && !savingProposal) {
+            if (!any(proposals) && !savingProposal) {
                 // noinspection JSIgnoredPromiseFromCall
                 proposalsSaved();
                 return;
@@ -217,7 +238,7 @@ export function CreateSeasonDialog({
             saveNextProposal();
         },
         // eslint-disable-next-line
-        [stage, fixturesToSave, savingProposal, saveResults],
+        [stage, proposals, savingProposal, saveResults],
     );
 
     async function proposalsSaved() {
@@ -227,10 +248,12 @@ export function CreateSeasonDialog({
         await setDivisionData!();
         setStage('saved');
 
-        const errors = saveResults.filter((r) => !r.success);
+        const errors = saveResults.filter(
+            (r) => r.fixture?.success === false || r.note?.success === false,
+        );
         if (any(errors)) {
             setSaveMessage(
-                `Some (${errors.length}) fixtures could not be saved`,
+                `Some (${errors.length}) fixtures or notes could not be saved`,
             );
             return;
         }
@@ -243,20 +266,20 @@ export function CreateSeasonDialog({
             return;
         }
 
-        const fixtureToSave = fixturesToSave[0];
-        setFixturesToSave(fixturesToSave.filter((f) => f !== fixtureToSave));
+        const proposal = proposals[0];
+        setProposals(proposals.filter((f) => f !== proposal));
         setSavingProposal(true);
 
         try {
-            const fixture = fixtureToSave.fixture;
-            const date = fixtureToSave.date;
-            const division = fixtureToSave.division;
+            const date = proposal.date;
+            const division = proposal.division;
 
-            setSaveMessage(
-                `Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam!.name}`,
-            );
-            const result: IClientActionResultDto<GameDto> =
-                await gameApi.update({
+            if (proposal.fixture) {
+                const fixture = proposal.fixture;
+                setSaveMessage(
+                    `Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam!.name}`,
+                );
+                const result = await gameApi.update({
                     address: fixture.homeTeam.address!,
                     divisionId: division.id,
                     homeTeamId: fixture.homeTeam.id,
@@ -266,15 +289,43 @@ export function CreateSeasonDialog({
                     seasonId: seasonId,
                     accoladesCount: true,
                 });
-            setSaveResults(saveResults.concat(result));
+                setSaveResults(
+                    saveResults.concat({
+                        proposal,
+                        fixture: result,
+                    }),
+                );
+            }
+
+            if (proposal.note) {
+                const note = proposal.note;
+                setSaveMessage(
+                    `Saving - ${division.name}: ${renderDate(date.date)}, ${note.note}`,
+                );
+                const id = note.id ?? createTemporaryId();
+                const result = await noteApi.upsert(id, {
+                    id,
+                    date: date.date,
+                    note: note.note,
+                    seasonId: seasonId,
+                    divisionId: note.divisionId,
+                });
+                setSaveResults(saveResults.concat({ proposal, note: result }));
+            }
         } catch (e) {
             const error: Error = e as Error;
+            const errorResult = {
+                success: false,
+                errors: ['Error saving proposal: ' + error.message],
+                warnings: [],
+                messages: [],
+            };
+
             setSaveResults(
                 saveResults.concat({
-                    success: false,
-                    errors: ['Error saving proposal: ' + error.message],
-                    warnings: [],
-                    messages: [],
+                    proposal,
+                    fixture: proposal.fixture ? errorResult : undefined,
+                    note: proposal.note ? errorResult : undefined,
                 }),
             );
             setSaveMessage('Error saving proposal: ' + error.message);
@@ -337,7 +388,10 @@ export function CreateSeasonDialog({
                 ) : null}
                 {stage === '5-confirm-save' ? (
                     <ConfirmSave
-                        noOfFixturesToSave={fixturesToSave.length}
+                        noOfFixturesToSave={
+                            proposals.filter((p) => p.fixture).length
+                        }
+                        noOfNotesToSave={proposals.filter((p) => p.note).length}
                         noOfDivisions={divisions.length}
                     />
                 ) : null}
@@ -345,9 +399,9 @@ export function CreateSeasonDialog({
                 stage === 'aborted' ||
                 stage === 'saved' ? (
                     <SavingProposals
-                        noOfFixturesToSave={fixturesToSave.length}
+                        proposalsToSave={proposals.length}
                         saveMessage={saveMessage!}
-                        saveResults={saveResults}
+                        savedProposals={saveResults}
                         saving={stage === '6-saving'}
                     />
                 ) : null}

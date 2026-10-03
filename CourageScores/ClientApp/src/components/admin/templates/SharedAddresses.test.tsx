@@ -1,4 +1,4 @@
-import { AdminContainer } from './AdminContainer.tsx';
+import { AdminContainer } from '../AdminContainer.tsx';
 import {
     appProps,
     brandingProps,
@@ -6,7 +6,7 @@ import {
     iocProps,
     renderApp,
     TestContext,
-} from '../../helpers/tests.tsx';
+} from '../../../helpers/tests.tsx';
 import { ISharedAddressesProps, SharedAddresses } from './SharedAddresses.tsx';
 
 describe('SharedAddresses', () => {

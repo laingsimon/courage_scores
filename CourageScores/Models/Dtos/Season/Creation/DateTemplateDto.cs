@@ -12,4 +12,6 @@ public class DateTemplateDto
     /// The fixtures to create on this date
     /// </summary>
     public List<FixtureTemplateDto> Fixtures { get; set; } = new();
+
+    public List<NoteTemplateDto> Notes { get; set; } = new();
 }

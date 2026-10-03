@@ -1,4 +1,4 @@
-﻿import { AdminContainer } from './AdminContainer.tsx';
+﻿import { AdminContainer } from '../AdminContainer.tsx';
 import {
     cleanUp,
     renderApp,
@@ -8,14 +8,14 @@ import {
     ErrorState,
     TestContext,
     noop,
-} from '../../helpers/tests.tsx';
+} from '../../../helpers/tests.tsx';
 import {
     ITemplateTextEditorProps,
     TemplateTextEditor,
 } from './TemplateTextEditor.tsx';
-import { createTemporaryId } from '../../helpers/projection.ts';
-import { TemplateDto } from '../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
-import { EditTemplateDto } from '../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
+import { createTemporaryId } from '../../../helpers/projection.ts';
+import { TemplateDto } from '../../../interfaces/models/dtos/Season/Creation/TemplateDto.ts';
+import { EditTemplateDto } from '../../../interfaces/models/dtos/Season/Creation/EditTemplateDto.ts';
 
 describe('TemplateTextEditor', () => {
     let context: TestContext;
