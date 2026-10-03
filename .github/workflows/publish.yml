@@ -92,7 +92,7 @@ jobs:
 
       - name: Run npm audit (behavioural tests)
         shell: pwsh
-        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests
+        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests -Install
         working-directory: ./CourageScores.BehaviouralTests
         env:
           GITHUB_TOKEN: ${{ github.token }}
