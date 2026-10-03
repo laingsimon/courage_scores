@@ -507,3 +507,7 @@ body .width-5em {
 .letter-spacing-3 {
     letter-spacing: 10px;
 }
+
+.z-1051 {
+    z-index: 1051;
+}

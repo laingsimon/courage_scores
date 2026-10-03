@@ -1,4 +1,5 @@
 using CourageScores.Models;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
@@ -72,21 +73,22 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
     private static async Task<bool> ProvisionFixturesForThisDate(
         ProposalContext context,
         DateTime currentDate,
-        IEnumerable<DateTemplateDto> templateDateForDivisions,
+        IReadOnlyCollection<DateTemplateDto> templateDateForDivisions,
         CancellationToken token)
     {
         var divisionMappings = context.MatchContext.GetDivisionMappings(context.Template);
         var success = true;
         var division = 0;
 
-        foreach (var mapping in divisionMappings.Zip(templateDateForDivisions))
+        foreach (var (sharedAddressMapping, dateTemplate) in divisionMappings.Zip(templateDateForDivisions))
         {
             token.ThrowIfCancellationRequested();
+            var season = context.MatchContext.SeasonDto;
 
             division++;
-            var weekOffset = 1 + (currentDate - context.MatchContext.SeasonDto.StartDate).TotalDays / 7;
-            var fixturesToCreate = mapping.Second.Fixtures ?? throw new NullReferenceException($"No fixtures for week {weekOffset} in division {division}");
-            var divisionToAddFixturesTo = mapping.First.SeasonDivision ?? throw new NullReferenceException($"No second division for week {weekOffset} in division {division}");
+            var weekOffset = 1 + (currentDate - season.StartDate).TotalDays / 7;
+            var fixturesToCreate = dateTemplate.Fixtures ?? throw new NullReferenceException($"No fixtures for week {weekOffset} in division {division}");
+            var divisionToAddFixturesTo = sharedAddressMapping.SeasonDivision ?? throw new NullReferenceException($"No second division for week {weekOffset} in division {division}");
             var fixtureDate = divisionToAddFixturesTo.Fixtures.FirstOrDefault(fd => fd.Date == currentDate);
             if (fixtureDate == null)
             {
@@ -98,9 +100,61 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             }
 
             success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;
+            foreach (var note in dateTemplate.Notes.Where(n => n.DivisionNumber == division).Concat(GetCrossDivisionalNotesFromAllTemplates(templateDateForDivisions)))
+            {
+                ConvertToNote(note, currentDate, season.Id, context.MatchContext.Divisions, divisionToAddFixturesTo);
+            }
         }
 
         return success;
+    }
+
+    private static IEnumerable<NoteTemplateDto> GetCrossDivisionalNotesFromAllTemplates(IReadOnlyCollection<DateTemplateDto> templateDateForDivisions)
+    {
+        return templateDateForDivisions.SelectMany(d => d.Notes).Where(n => n.DivisionNumber == null);
+    }
+
+    private static void ConvertToNote(
+        NoteTemplateDto noteTemplate,
+        DateTime date,
+        Guid seasonId,
+        List<DivisionDataDto> divisions,
+        DivisionDataDto divisionToAddFixturesTo)
+    {
+        var noteDate = noteTemplate.AlternativeDayOfWeek == null || noteTemplate.AlternativeDayOfWeek == date.DayOfWeek
+            ? date
+            : GetPreviousDate(date, noteTemplate.AlternativeDayOfWeek.Value);
+
+        var note = new FixtureDateNoteDto
+        {
+            Note = noteTemplate.Note,
+            Date = noteDate,
+            DivisionId = noteTemplate.DivisionNumber != null
+                ? divisions[noteTemplate.DivisionNumber.Value - 1].Id
+                : null,
+            SeasonId = seasonId,
+        };
+
+        var fixtureDate = divisionToAddFixturesTo.Fixtures.FirstOrDefault(fd => fd.Date == noteDate);
+        if (fixtureDate == null)
+        {
+            fixtureDate = new DivisionFixtureDateDto
+            {
+                Date = noteDate,
+            };
+            divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat([fixtureDate]).OrderBy(f => f.Date).ToList();
+        }
+        fixtureDate.Notes.Add(note);
+    }
+
+    private static DateTime GetPreviousDate(DateTime date, DayOfWeek dayOfWeek)
+    {
+        var startOfWeek = date.AddDays(-(int)date.DayOfWeek).AddDays(1); // monday
+        var dayOfWeekNumber = dayOfWeek == DayOfWeek.Sunday
+            ? 6 // otherwise sunday (0) -> -1. In the UK, Monday is commonly recognised as the start of the week
+            : (int)dayOfWeek - 1;
+
+        return startOfWeek.AddDays(dayOfWeekNumber);
     }
 
     private static Task<bool> CreateFixturesForDate(ProposalContext context, List<FixtureTemplateDto> fixturesToCreate, DivisionFixtureDateDto fixtureDate, CancellationToken token)

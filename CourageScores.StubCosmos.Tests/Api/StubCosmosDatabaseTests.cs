@@ -69,7 +69,7 @@ public class StubCosmosDatabaseTests
         await container.UpsertItemAsync(replacementItem);
         Assert.That(
             await StubContainerTestData.GetRows(container.GetItemQueryIterator<TestRecord>("select * from test")).ToList(),
-            Has.One.Matches<TestRecord>(r => r.Id == replacementItem.Id && r.Name == replacementItem.Name));
+            Has.One.Matches<TestRecord>(r => r?.Id == replacementItem.Id && r.Name == replacementItem.Name));
 
         await database.ResetToSnapshot("snapshot");
         container = (StubContainer)await database.CreateContainerIfNotExistsAsync("test", "/id");
