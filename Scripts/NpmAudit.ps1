@@ -58,14 +58,17 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
-    $SilencedVulnerabilities.Keys | ForEach-Object {
-        $Vulnerability = $_
+    if ($SilencedVulnerabilities -ne $null)
+    {
+        $SilencedVulnerabilities.Keys | ForEach-Object {
+            $Vulnerability = $_
 
-        if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
-        {
-            # can remove this vulnerability
-            Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
-            $SilencedVulnerabilitiesShouldBeRemoved = $true
+            if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
+            {
+                # can remove this vulnerability
+                Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
+                $SilencedVulnerabilitiesShouldBeRemoved = $true
+            }
         }
     }
 
