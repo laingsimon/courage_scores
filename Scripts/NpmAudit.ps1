@@ -51,7 +51,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             return
         }
 
-        if ($SilencedVulnerabilities.ContainsKey($vulnerability))
+        if ($SilencedVulnerabilities -ne $null -and $SilencedVulnerabilities.ContainsKey($vulnerability))
         {
             if ($Ignored.ContainsKey($Vulnerability) -eq $false)
             { 
