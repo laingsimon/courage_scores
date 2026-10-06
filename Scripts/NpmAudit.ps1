@@ -35,6 +35,13 @@ Function Extract-Vulnerabilities($NpmAuditResult)
     $Vulnerabilities = @{}
     $Ignored = @{}
 
+    if ($Matches -eq $null)
+    {
+        Write-Host "No matches"
+        Write-Host $NpmAuditResult.output
+        return
+    }
+
     $Matches | ForEach-Object {
         $Vulnerability = $_.Groups[2].Value
         $Description = $_.Groups[1].Value
