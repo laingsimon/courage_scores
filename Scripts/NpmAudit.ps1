@@ -10,6 +10,8 @@ Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 $SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
 $SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
+$SilencedThatShouldBeRemoved = @{}
+$Ignored = @{}
 
 Function Write-Message($Message)
 {
@@ -33,7 +35,6 @@ Function Extract-Vulnerabilities($NpmAuditResult)
     $Regex = "(.+) - https://github.com/advisories/(GHSA-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+)"
     $Matches = [System.Text.RegularExpressions.Regex]::Matches($NpmAuditResult.output, $Regex, [System.Text.RegularExpressions.RegexOptions]::Multiline)
     $Vulnerabilities = @{}
-    $Ignored = @{}
 
     if ($Matches -eq $null)
     {
@@ -46,7 +47,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         $Vulnerability = $_.Groups[2].Value
         $Description = $_.Groups[1].Value
 
-        if ($Vulnerabilities.ContainsKey($Vulnerability)) 
+        if ($Vulnerabilities.ContainsKey($Vulnerability))
         {
             return
         }
@@ -62,6 +63,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         }
 
         Write-Host -ForegroundColor Red "Found vulnerability $($Vulnerability) ($($Description))"
+        Write-Host -ForegroundColor DarkRed "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
@@ -74,7 +76,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             {
                 # can remove this vulnerability
                 Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
-                $SilencedVulnerabilitiesShouldBeRemoved = $true
+                $SilencedThatShouldBeRemoved.Add($Vulnerability, $true)
             }
         }
     }
@@ -179,13 +181,17 @@ If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length
     Exit 0
 }
 
-if ($Vulnerabilities.Count -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -eq $true)
+If ($Vulnerabilities.Count -gt 0)
 {
+    Write-Message "Vulnerabilities found"
+    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
+}
+
+If ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0)
+{
+    Write-Message "Silenced vulnerabilities should be removed"
     Exit -1 ## silenced vulnerabilities should be removed, fail the build
 }
 
-if ($Vulnerabilities.Count -gt 0)
-{
-    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
-}
+Write-Message "No vulnerabilities ($($Ignored.Count) ignored)"
 Exit 0
