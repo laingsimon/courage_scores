@@ -58,6 +58,14 @@ jobs:
     secrets:
       six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
+  audit:
+    needs:
+     - setup
+    uses: ./.github/workflows/audit.yml
+    with:
+      branch-name: ${{ needs.branch-name.outputs.branch-name }}
+      commit-sha: ${{ github.sha }}
+
   ui_tests:
     needs:
      - setup
@@ -90,6 +98,7 @@ jobs:
       - branch-name
       - build
       - publish
+      - audit
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'DEV'
