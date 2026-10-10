@@ -99,7 +99,7 @@ $GitHubEvent = $env:GITHUB_EVENT_NAME
 
 if ($GitHubEvent -ne "pull_request")
 {
-    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+    if ($PullRequestNumber -eq "main" -and ($GitHubEvent -eq "push" -or $GitHubEvent -eq "workflow_dispatch" -or $GitHubEvent -eq "schedule"))
     {
         # find the pull request for main
         $PullRequest = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
@@ -115,7 +115,7 @@ if ($GitHubEvent -ne "pull_request")
     }
     else
     {
-        Write-Host "Not a push to main, unable to add npm-audit comments"
+        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), GitHubEvent=$($GitHubEvent)"
     }
 }
 
