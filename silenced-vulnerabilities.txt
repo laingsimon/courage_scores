@@ -1,0 +1,1 @@
+GHSA-hp3w-g68c-fv3c = sprintf-js - vulnerable to denial of service through unbounded precision specifiers
