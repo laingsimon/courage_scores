@@ -74,6 +74,7 @@ describe('TemplateDate', () => {
                         deleteDates,
                         divisionNo: 1,
                         getCrossDivisionalNotes,
+                        weekNumber: 1,
                         ...props,
                     }}
                 />
@@ -88,7 +89,7 @@ describe('TemplateDate', () => {
             const fixtures = context.all(
                 'span[data-type="fixture-buttons"] > button',
             );
-            expect(fixtures.map((f) => f.text())).toEqual(['⬆', '⬇', '🗑️']);
+            expect(fixtures.map((f) => f.text())).toEqual(['🗑️']);
         });
 
         it('existing fixture', async () => {
@@ -103,12 +104,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = context.all('button[data-type="fixture"]');
-            expect(fixtures.map((f) => f.text())).toEqual([
-                'A - B ×',
-                '⬆',
-                '⬇',
-                '🗑️',
-            ]);
+            expect(fixtures.map((f) => f.text())).toEqual(['A - B ×', '🗑️']);
         });
 
         it('existing bye', async () => {
@@ -122,12 +118,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = context.all('button[data-type="fixture"]');
-            expect(fixtures.map((f) => f.text())).toEqual([
-                'A ×',
-                '⬆',
-                '⬇',
-                '🗑️',
-            ]);
+            expect(fixtures.map((f) => f.text())).toEqual(['A ×', '🗑️']);
         });
 
         it('fixture with home template shared address', async () => {

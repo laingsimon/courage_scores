@@ -29,8 +29,6 @@ export interface ITemplateDateProps {
     onDelete(): UntypedPromise;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
-    moveEarlier?(): UntypedPromise;
-    moveLater?(): UntypedPromise;
     highlight?: string;
     setHighlight(highlight?: string): UntypedPromise;
     deleteDates(mnemonic: string): UntypedPromise;
@@ -45,8 +43,6 @@ export function TemplateDate({
     onDelete,
     divisionSharedAddresses,
     templateSharedAddresses,
-    moveEarlier,
-    moveLater,
     highlight,
     setHighlight,
     deleteDates,
@@ -176,7 +172,6 @@ export function TemplateDate({
 
     return (
         <>
-            {' '}
             <div className="align-content-center text-center width-50 flex-shrink-0 px-2 me-1 bg-secondary-subtle">
                 {weekNumber}
             </div>
@@ -265,20 +260,6 @@ export function TemplateDate({
                 </span>
 
                 <span className="no-wrap float-end" data-type="fixture-buttons">
-                    <button
-                        className="btn btn-sm btn-outline-info p-1 min-width-25"
-                        data-type="fixture"
-                        disabled={!moveEarlier}
-                        onClick={moveEarlier}>
-                        ⬆
-                    </button>
-                    <button
-                        className="btn btn-sm btn-outline-info p-1 min-width-25"
-                        data-type="fixture"
-                        disabled={!moveLater}
-                        onClick={moveLater}>
-                        ⬇
-                    </button>
                     <button
                         className="btn btn-sm btn-outline-danger p-1 min-width-25"
                         data-type="fixture"

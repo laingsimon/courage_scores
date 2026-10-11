@@ -172,58 +172,6 @@ describe('TemplateDates', () => {
             expect(update).toEqual([]);
         });
 
-        it('can move a date earlier', async () => {
-            await renderComponent({
-                dates: [
-                    {
-                        fixtures: [fixture('A', 'B')],
-                    },
-                    {
-                        fixtures: [fixture('C', 'D')],
-                    },
-                ],
-            });
-            const secondDate = context.required(
-                '.list-group-item:nth-child(3)',
-            );
-
-            await secondDate.button('⬆').click();
-
-            expect(update).toEqual([
-                {
-                    fixtures: [fixture('C', 'D')],
-                },
-                {
-                    fixtures: [fixture('A', 'B')],
-                },
-            ]);
-        });
-
-        it('can move a date later', async () => {
-            await renderComponent({
-                dates: [
-                    {
-                        fixtures: [fixture('A', 'B')],
-                    },
-                    {
-                        fixtures: [fixture('C', 'D')],
-                    },
-                ],
-            });
-            const firstDate = context.required('.list-group-item:nth-child(2)');
-
-            await firstDate.button('⬇').click();
-
-            expect(update).toEqual([
-                {
-                    fixtures: [fixture('C', 'D')],
-                },
-                {
-                    fixtures: [fixture('A', 'B')],
-                },
-            ]);
-        });
-
         it('can update a date/week', async () => {
             await renderComponent({
                 dates: [
