@@ -174,6 +174,7 @@ export function TemplateDates({
             event.dataTransfer.getData(sourceIndexDataType),
         );
 
+        setThisDivisionTentativeMove(undefined);
         await onUpdate(applyMove(dates, { sourceIndex, targetIndex }));
     }
 
