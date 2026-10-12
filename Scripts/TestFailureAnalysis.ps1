@@ -123,7 +123,7 @@ function Remove-Timestamp([Parameter(ValueFromPipeline)] $Line)
 function Get-DotNetFailures([Parameter(ValueFromPipeline)] $Path)
 {
     process {
-        $RelevantLines = Get-LinesBetween -Path $Path -InclusiveStart -Start "*Test run for*" ` -End "*Scripts/BuildChecks.ps1*"
+        $RelevantLines = Get-LinesBetween -Path $Path -InclusiveStart -Start "*Test run for*" ` -End "*Run coverallsapp/github-action*"
             | Remove-Timestamp `
             | Select-String -NotMatch -Pattern "test files matched the specified pattern" `
             | Select-String -NotMatch -Pattern "Results File" `

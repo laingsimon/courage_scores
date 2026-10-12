@@ -5,6 +5,7 @@ permissions:
   deployments: write
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -41,6 +42,14 @@ jobs:
     secrets:
       six_labors_license: ${{ secrets.SIX_LABORS_LICENSE }}
 
+  audit:
+    needs:
+     - setup
+    uses: ./.github/workflows/audit.yml
+    with:
+      branch-name: 'main'
+      commit-sha: ${{ github.sha }}
+
   ui_tests:
     needs:
      - setup
@@ -71,6 +80,7 @@ jobs:
     needs: 
       - build
       - publish
+      - audit
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'UAT'

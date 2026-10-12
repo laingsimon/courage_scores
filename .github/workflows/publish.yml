@@ -43,13 +43,6 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Run npm prettier
-        shell: pwsh
-        run: ../../Scripts/NpmPrettier.ps1
-        working-directory: ./CourageScores/ClientApp
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
       - name: Remove local only content
         shell: pwsh
         working-directory: ./CourageScores/ClientApp
@@ -66,36 +59,6 @@ jobs:
           VITE_APP_PR_NAME: "${{ github.event.pull_request.title }}"
           VITE_APP_PR_NUMBER: "${{ github.event.pull_request.number }}"
           SIXLABORS_LICENSE_KEY: ${{ secrets.six_labors_license }}
-
-      - name: Check .tsx file sizes
-        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
-        shell: pwsh
-        run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 1000 -WarningThreshold 900 -Extension '.tsx'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          COMMIT_SHA: "${{ inputs.commit-sha }}"
-
-      - name: Check .ts file sizes
-        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
-        shell: pwsh
-        run: ./Scripts/BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450 -Extension '.ts'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          COMMIT_SHA: "${{ inputs.commit-sha }}"
-
-      - name: Run npm audit (app)
-        shell: pwsh
-        run: ../../Scripts/NpmAudit.ps1 -Project ClientApp
-        working-directory: ./CourageScores/ClientApp
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Run npm audit (behavioural tests)
-        shell: pwsh
-        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests -Install
-        working-directory: ./CourageScores.BehaviouralTests
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Setup whitelabel variants
         shell: pwsh

@@ -10,6 +10,8 @@ Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 $SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
 $SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
+$SilencedThatShouldBeRemoved = @{}
+$Ignored = @{}
 
 Function Write-Message($Message)
 {
@@ -33,18 +35,24 @@ Function Extract-Vulnerabilities($NpmAuditResult)
     $Regex = "(.+) - https://github.com/advisories/(GHSA-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+)"
     $Matches = [System.Text.RegularExpressions.Regex]::Matches($NpmAuditResult.output, $Regex, [System.Text.RegularExpressions.RegexOptions]::Multiline)
     $Vulnerabilities = @{}
-    $Ignored = @{}
+
+    if ($Matches -eq $null)
+    {
+        Write-Host "No matches"
+        Write-Host $NpmAuditResult.output
+        return
+    }
 
     $Matches | ForEach-Object {
         $Vulnerability = $_.Groups[2].Value
         $Description = $_.Groups[1].Value
 
-        if ($Vulnerabilities.ContainsKey($Vulnerability)) 
+        if ($Vulnerabilities.ContainsKey($Vulnerability))
         {
             return
         }
 
-        if ($SilencedVulnerabilities.ContainsKey($vulnerability))
+        if ($SilencedVulnerabilities -ne $null -and $SilencedVulnerabilities.ContainsKey($vulnerability))
         {
             if ($Ignored.ContainsKey($Vulnerability) -eq $false)
             { 
@@ -55,17 +63,21 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         }
 
         Write-Host -ForegroundColor Red "Found vulnerability $($Vulnerability) ($($Description))"
+        Write-Host -ForegroundColor DarkRed "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
-    $SilencedVulnerabilities.Keys | ForEach-Object {
-        $Vulnerability = $_
+    if ($SilencedVulnerabilities -ne $null)
+    {
+        $SilencedVulnerabilities.Keys | ForEach-Object {
+            $Vulnerability = $_
 
-        if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
-        {
-            # can remove this vulnerability
-            Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
-            $SilencedVulnerabilitiesShouldBeRemoved = $true
+            if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
+            {
+                # can remove this vulnerability
+                Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
+                $SilencedThatShouldBeRemoved.Add($Vulnerability, $true)
+            }
         }
     }
 
@@ -87,7 +99,7 @@ $GitHubEvent = $env:GITHUB_EVENT_NAME
 
 if ($GitHubEvent -ne "pull_request")
 {
-    if ($PullRequestNumber -eq "main" -and $GitHubEvent -eq "push")
+    if ($PullRequestNumber -eq "main" -and ($GitHubEvent -eq "push" -or $GitHubEvent -eq "workflow_dispatch" -or $GitHubEvent -eq "schedule"))
     {
         # find the pull request for main
         $PullRequest = Get-PullRequests -GitHubToken $Token -Repo $Repo -Base "release"
@@ -103,7 +115,7 @@ if ($GitHubEvent -ne "pull_request")
     }
     else
     {
-        Write-Host "Not a push to main, unable to add npm-audit comments"
+        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), GitHubEvent=$($GitHubEvent)"
     }
 }
 
@@ -169,13 +181,17 @@ If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length
     Exit 0
 }
 
-if ($Vulnerabilities.Count -eq 0 -and $SilencedVulnerabilitiesShouldBeRemoved -eq $true)
+If ($Vulnerabilities.Count -gt 0)
 {
+    Write-Message "Vulnerabilities found"
+    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
+}
+
+If ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0)
+{
+    Write-Message "Silenced vulnerabilities should be removed"
     Exit -1 ## silenced vulnerabilities should be removed, fail the build
 }
 
-if ($Vulnerabilities.Count -gt 0)
-{
-    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
-}
+Write-Message "No vulnerabilities ($($Ignored.Count) ignored)"
 Exit 0
