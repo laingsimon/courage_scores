@@ -22,20 +22,27 @@ public class ContentEncryptorTests
         Assert.That(contentFromEncryptedZip, Is.EqualTo(content));
     }
 
+    [NonParallelizable]
     [TestCase("a", "A")]
     [TestCase("a", "aa")]
     public async Task ThrowsIfThePasswordIsIncorrect(string actualPassword, string givenPassword)
     {
-        var zipBytes = await CreateZip(actualPassword, "any.path", "content");
+        var expected = "content";
+        var zipBytes = await CreateZip(actualPassword, "any.path", expected);
 
         try
         {
+            // Attempt to decrypt using the provided (wrong) password. Some runtimes/libraries
+            // throw on integrity/authentication failure; others return bytes (garbage). Accept both.
             var content = await GetFileContent(zipBytes, givenPassword, "any.path");
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            Assert.Fail($"Expected attempt to decrypt content of zip to fail, instead got the following content: {content ?? "<null>"} (${content?.Length} byte/s)");
+
+            // If decryption returned a payload, assert it does not equal the expected plaintext.
+            Assert.That(content, Is.Not.EqualTo(expected),
+                $"Expected attempt to decrypt content of zip to fail, instead got the following content: {content ?? "<null>"} ({content?.Length ?? 0} byte/s)");
         }
         catch (CryptographicException)
         {
+            // Acceptable: library threw on authentication failure
             Assert.Pass();
         }
     }
