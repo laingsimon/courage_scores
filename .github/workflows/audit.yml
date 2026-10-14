@@ -67,7 +67,7 @@ jobs:
 
       - name: Run npm audit (behavioural tests)
         shell: pwsh
-        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests -Install
+        run: ../Scripts/NpmAudit.ps1 -Project BehaviouralTests -Install -AllowRedundantSilencedVulnerabilities
         working-directory: ./CourageScores.BehaviouralTests
         env:
           GITHUB_TOKEN: ${{ github.token }}

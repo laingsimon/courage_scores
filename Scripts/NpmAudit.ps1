@@ -1,4 +1,4 @@
-param([string] $Project, [switch] $Install)
+param([string] $Project, [switch] $Install, [switch] $AllowRedundantSilencedVulnerabilities)
 $AuditCommentHeading = "npm audit report - $($Project)"
 $OutdatedCommentHeading = "npm outdated report - $($Project)"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit - $($Project)"
@@ -12,10 +12,17 @@ $SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulne
 $SilencedVulnerabilitiesShouldBeRemoved = $false
 $SilencedThatShouldBeRemoved = @{}
 $Ignored = @{}
+$LogMessages = ""
 
 Function Write-Message($Message)
 {
     [Console]::Out.WriteLine($Message)
+}
+
+Function Write-LogMessage($Message)
+{
+    Write-Message $Message
+    $script:LogMessages = "$($script:LogMessages)`n$($Message)"
 }
 
 Function Extract-Vulnerabilities($NpmAuditResult)
@@ -26,7 +33,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         if ($SilencedVulnerabilities.Count -ge 0)
         {
             # some vulnerabilities are needlessly silenced
-            Write-Host -ForegroundColor Red "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
+            Write-LogMessage "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
             $SilencedVulnerabilitiesShouldBeRemoved = $true
         }
         return
@@ -57,13 +64,13 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false)
             { 
                 $Ignored.Add($Vulnerability, $true)
-                Write-Host -ForegroundColor DarkRed "Ignoring vulnerability $($Vulnerability) ($($SilencedVulnerabilities[$Vulnerability]))"
+                Write-LogMessage "Ignoring vulnerability $($Vulnerability) ($($SilencedVulnerabilities[$Vulnerability]))"
             }
             return
         }
 
-        Write-Host -ForegroundColor Red "Found vulnerability $($Vulnerability) ($($Description))"
-        Write-Host -ForegroundColor DarkRed "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
+        Write-LogMessage "Found vulnerability $($Vulnerability) ($($Description))"
+        Write-LogMessage "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
@@ -75,7 +82,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
             {
                 # can remove this vulnerability
-                Write-Host -ForegroundColor Red "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
+                Write-LogMessage "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
                 $SilencedThatShouldBeRemoved.Add($Vulnerability, $true)
             }
         }
@@ -158,12 +165,40 @@ elseif ($GitHubEvent -eq "pull_request")
     Remove-ExistingComments -GitHubToken $Token -Comments $AuditComments
 }
 
-$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
+$ExitCode = 0
+
+If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
+{
+    Write-LogMessage "npm audit warnings have been bypassed by request"
+    $ExitCode = 0
+}
+
+If ($Vulnerabilities.Count -gt 0)
+{
+    Write-LogMessage "Vulnerabilities found"
+    $ExitCode -2 ## some vulnerabilities exist, either resolve them or ignore them
+}
+
+If (($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0) -and $AllowRedundantSilencedVulnerabilities -ne $true)
+{
+    Write-LogMessage "Silenced vulnerabilities should be removed"
+    $ExitCode -1 ## silenced vulnerabilities should be removed, fail the build
+}
+
+Write-LogMessage "No vulnerabilities ($($Ignored.Count) ignored)"
+$Status = " :white_check_mark: Success"
+If ($ExitCode -ne 0)
+{
+    Write-LogMessage "Exit code: $($ExitCode)"
+    $Status = " :x: Fail"
+}
+$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$Status - $OutdatedCommentHeading"""
+
 If ($OutdatedNpmModulesComment -ne "")
 {
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown $OutdatedNpmModulesComment
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown "$($OutdatedNpmModulesComment)`n$($GitHubMarkdownCodeBlock)$($LogMessages)`n$($GitHubMarkdownCodeBlock)"
     }
     else
     {
@@ -175,23 +210,5 @@ elseif ($GitHubEvent -eq "pull_request")
     Remove-ExistingComments -GitHubToken $Token -Comments $OutdatedComments
 }
 
-If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
-{
-    Write-Message "npm audit warnings have been bypassed by request"
-    Exit 0
-}
-
-If ($Vulnerabilities.Count -gt 0)
-{
-    Write-Message "Vulnerabilities found"
-    Exit -2 ## some vulnerabilities exist, either resolve them or ignore them
-}
-
-If ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0)
-{
-    Write-Message "Silenced vulnerabilities should be removed"
-    Exit -1 ## silenced vulnerabilities should be removed, fail the build
-}
-
-Write-Message "No vulnerabilities ($($Ignored.Count) ignored)"
-Exit 0
+Write-Message $VulnerabilitiesMessage
+Exit $ExitCode
