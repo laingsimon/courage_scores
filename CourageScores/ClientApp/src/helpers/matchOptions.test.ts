@@ -120,10 +120,10 @@ describe('matchOptions', () => {
             expect(result).toBeTruthy();
             expect(result.playerCount[0]).toEqual(1);
             expect(result.startingScore[0]).toEqual(501);
-            expect(result.numberOfLegs[0]).toEqual(3);
+            expect(result.numberOfLegs[0]).toEqual(5);
             expect(result.playerCount[5]).toEqual(2);
             expect(result.startingScore[5]).toEqual(501);
-            expect(result.numberOfLegs[5]).toEqual(3);
+            expect(result.numberOfLegs[5]).toEqual(5);
             expect(result.playerCount[7]).toEqual(0);
             expect(result.startingScore[7]).toEqual(0);
             expect(result.numberOfLegs[7]).toEqual(0);

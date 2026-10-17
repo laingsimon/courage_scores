@@ -49,8 +49,8 @@ export const LEAGUE_MATCH_DEFAULTS: MatchDefaults = {
 };
 
 export const KNOCKOUT_MATCH_DEFAULTS: MatchDefaults = {
-    singlesBestOf: 3,
-    pairsBestOf: 3,
+    singlesBestOf: 5,
+    pairsBestOf: 5,
     triplesBestOf: 0,
     singlesStartingScore: 501,
     pairsStartingScore: 501,
