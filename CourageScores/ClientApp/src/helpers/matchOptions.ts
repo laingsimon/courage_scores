@@ -30,16 +30,36 @@ export function getMatchOptionDefaults(
     };
 }
 
-const NO_OF_LEGS_LEAGUE_SINGLES = 5;
-const NO_OF_LEGS_LEAGUE_PAIRS = 3;
-const NO_OF_LEGS_LEAGUE_TRIPLES = 3;
-const NO_OF_LEGS_KNOCKOUT_SINGLES = 3;
-const NO_OF_LEGS_KNOCKOUT_PAIRS = 3;
-const NO_OF_LEGS_KNOCKOUT_TRIPLES = 0;
+export interface MatchDefaults {
+    singlesBestOf: number;
+    pairsBestOf: number;
+    triplesBestOf: number;
+    singlesStartingScore: number;
+    pairsStartingScore: number;
+    triplesStartingScore: number;
+}
+
+export const LEAGUE_MATCH_DEFAULTS: MatchDefaults = {
+    singlesBestOf: 5,
+    pairsBestOf: 3,
+    triplesBestOf: 3,
+    singlesStartingScore: 501,
+    pairsStartingScore: 501,
+    triplesStartingScore: 601,
+};
+
+export const KNOCKOUT_MATCH_DEFAULTS: MatchDefaults = {
+    singlesBestOf: 3,
+    pairsBestOf: 3,
+    triplesBestOf: 0,
+    singlesStartingScore: 501,
+    pairsStartingScore: 501,
+    triplesStartingScore: 0,
+};
 
 export function getMatchOptionsLookup(
     matchOptions: GameMatchOptionDto[],
-    isKnockout?: boolean,
+    matchDefaults: MatchDefaults,
 ): IMatchOptionsLookup {
     return {
         playerCount: {
@@ -48,65 +68,67 @@ export function getMatchOptionsLookup(
             2: elementAt(matchOptions, 2, (op) => op.playerCount) || 1,
             3: elementAt(matchOptions, 3, (op) => op.playerCount) || 1,
             4: elementAt(matchOptions, 4, (op) => op.playerCount) || 1,
-            5: elementAt(matchOptions, 5, (op) => op.playerCount) || 2,
-            6: elementAt(matchOptions, 6, (op) => op.playerCount) || 2,
+            5:
+                elementAt(matchOptions, 5, (op) => op.playerCount) ||
+                (matchDefaults.pairsStartingScore > 0 ? 2 : 0),
+            6:
+                elementAt(matchOptions, 6, (op) => op.playerCount) ||
+                (matchDefaults.pairsStartingScore > 0 ? 2 : 0),
             7:
                 elementAt(matchOptions, 7, (op) => op.playerCount) ||
-                (isKnockout ? 0 : 3),
+                (matchDefaults.triplesStartingScore > 0 ? 3 : 0),
         },
         startingScore: {
-            0: elementAt(matchOptions, 0, (op) => op.startingScore) || 501,
-            1: elementAt(matchOptions, 1, (op) => op.startingScore) || 501,
-            2: elementAt(matchOptions, 2, (op) => op.startingScore) || 501,
-            3: elementAt(matchOptions, 3, (op) => op.startingScore) || 501,
-            4: elementAt(matchOptions, 4, (op) => op.startingScore) || 501,
-            5: elementAt(matchOptions, 5, (op) => op.startingScore) || 501,
-            6: elementAt(matchOptions, 6, (op) => op.startingScore) || 501,
+            0:
+                elementAt(matchOptions, 0, (op) => op.startingScore) ||
+                matchDefaults.singlesStartingScore,
+            1:
+                elementAt(matchOptions, 1, (op) => op.startingScore) ||
+                matchDefaults.singlesStartingScore,
+            2:
+                elementAt(matchOptions, 2, (op) => op.startingScore) ||
+                matchDefaults.singlesStartingScore,
+            3:
+                elementAt(matchOptions, 3, (op) => op.startingScore) ||
+                matchDefaults.singlesStartingScore,
+            4:
+                elementAt(matchOptions, 4, (op) => op.startingScore) ||
+                matchDefaults.singlesStartingScore,
+            5:
+                elementAt(matchOptions, 5, (op) => op.startingScore) ||
+                matchDefaults.pairsStartingScore,
+            6:
+                elementAt(matchOptions, 6, (op) => op.startingScore) ||
+                matchDefaults.pairsStartingScore,
             7:
                 elementAt(matchOptions, 7, (op) => op.startingScore) ||
-                (isKnockout ? 0 : 601),
+                matchDefaults.triplesStartingScore,
         },
         numberOfLegs: {
             0:
                 elementAt(matchOptions, 0, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
-                    : NO_OF_LEGS_LEAGUE_SINGLES),
+                matchDefaults.singlesBestOf,
             1:
                 elementAt(matchOptions, 1, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
-                    : NO_OF_LEGS_LEAGUE_SINGLES),
+                matchDefaults.singlesBestOf,
             2:
                 elementAt(matchOptions, 2, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
-                    : NO_OF_LEGS_LEAGUE_SINGLES),
+                matchDefaults.singlesBestOf,
             3:
                 elementAt(matchOptions, 3, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
-                    : NO_OF_LEGS_LEAGUE_SINGLES),
+                matchDefaults.singlesBestOf,
             4:
                 elementAt(matchOptions, 4, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
-                    : NO_OF_LEGS_LEAGUE_SINGLES),
+                matchDefaults.singlesBestOf,
             5:
                 elementAt(matchOptions, 5, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_PAIRS
-                    : NO_OF_LEGS_LEAGUE_PAIRS),
+                matchDefaults.pairsBestOf,
             6:
                 elementAt(matchOptions, 6, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_PAIRS
-                    : NO_OF_LEGS_LEAGUE_PAIRS),
+                matchDefaults.pairsBestOf,
             7:
                 elementAt(matchOptions, 7, (op) => op.numberOfLegs) ||
-                (isKnockout
-                    ? NO_OF_LEGS_KNOCKOUT_TRIPLES
-                    : NO_OF_LEGS_LEAGUE_TRIPLES),
+                matchDefaults.triplesBestOf,
         },
     };
 }
