@@ -67,7 +67,7 @@ if ($backupData.success -ne $true) {
 }
 
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
-Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024))kb ($($backupData.result.zip.length))"
+Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024.0))kb ($($backupData.result.zip.length))"
 
 if ($backupData.result.zip.length -le 1024)
 {
