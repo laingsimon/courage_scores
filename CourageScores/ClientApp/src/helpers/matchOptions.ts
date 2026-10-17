@@ -30,6 +30,13 @@ export function getMatchOptionDefaults(
     };
 }
 
+const NO_OF_LEGS_LEAGUE_SINGLES = 5;
+const NO_OF_LEGS_LEAGUE_PAIRS = 3;
+const NO_OF_LEGS_LEAGUE_TRIPLES = 3;
+const NO_OF_LEGS_KNOCKOUT_SINGLES = 3;
+const NO_OF_LEGS_KNOCKOUT_PAIRS = 3;
+const NO_OF_LEGS_KNOCKOUT_TRIPLES = 0;
+
 export function getMatchOptionsLookup(
     matchOptions: GameMatchOptionDto[],
     isKnockout?: boolean,
@@ -62,24 +69,44 @@ export function getMatchOptionsLookup(
         numberOfLegs: {
             0:
                 elementAt(matchOptions, 0, (op) => op.numberOfLegs) ||
-                (isKnockout ? 3 : 5),
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
+                    : NO_OF_LEGS_LEAGUE_SINGLES),
             1:
                 elementAt(matchOptions, 1, (op) => op.numberOfLegs) ||
-                (isKnockout ? 3 : 5),
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
+                    : NO_OF_LEGS_LEAGUE_SINGLES),
             2:
                 elementAt(matchOptions, 2, (op) => op.numberOfLegs) ||
-                (isKnockout ? 3 : 5),
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
+                    : NO_OF_LEGS_LEAGUE_SINGLES),
             3:
                 elementAt(matchOptions, 3, (op) => op.numberOfLegs) ||
-                (isKnockout ? 3 : 5),
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
+                    : NO_OF_LEGS_LEAGUE_SINGLES),
             4:
                 elementAt(matchOptions, 4, (op) => op.numberOfLegs) ||
-                (isKnockout ? 3 : 5),
-            5: elementAt(matchOptions, 5, (op) => op.numberOfLegs) || 3,
-            6: elementAt(matchOptions, 6, (op) => op.numberOfLegs) || 3,
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_SINGLES
+                    : NO_OF_LEGS_LEAGUE_SINGLES),
+            5:
+                elementAt(matchOptions, 5, (op) => op.numberOfLegs) ||
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_PAIRS
+                    : NO_OF_LEGS_LEAGUE_PAIRS),
+            6:
+                elementAt(matchOptions, 6, (op) => op.numberOfLegs) ||
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_PAIRS
+                    : NO_OF_LEGS_LEAGUE_PAIRS),
             7:
                 elementAt(matchOptions, 7, (op) => op.numberOfLegs) ||
-                (isKnockout ? 0 : 3),
+                (isKnockout
+                    ? NO_OF_LEGS_KNOCKOUT_TRIPLES
+                    : NO_OF_LEGS_LEAGUE_TRIPLES),
         },
     };
 }
