@@ -3,13 +3,18 @@
 import {
     getMatchOptionDefaults,
     getMatchOptionsLookup,
+    KNOCKOUT_MATCH_DEFAULTS,
+    LEAGUE_MATCH_DEFAULTS,
 } from './matchOptions.ts';
 import { GameMatchOptionDto } from '../interfaces/models/dtos/Game/GameMatchOptionDto.ts';
 
 describe('matchOptions', () => {
     describe('getMatchOptionsDefaults', () => {
         it('returns matchOption properties correctly', () => {
-            const matchOptions = getMatchOptionsLookup([], false);
+            const matchOptions = getMatchOptionsLookup(
+                [],
+                LEAGUE_MATCH_DEFAULTS,
+            );
 
             const result = getMatchOptionDefaults(1, matchOptions);
 
@@ -36,7 +41,10 @@ describe('matchOptions', () => {
                 matchOption,
                 matchOption,
             ];
-            const result = getMatchOptionsLookup(matchOptions, false);
+            const result = getMatchOptionsLookup(
+                matchOptions,
+                LEAGUE_MATCH_DEFAULTS,
+            );
 
             expect(result).toBeTruthy();
             expect(result.playerCount[0]).toEqual(5);
@@ -66,7 +74,10 @@ describe('matchOptions', () => {
                 matchOption,
                 matchOption,
             ];
-            const result = getMatchOptionsLookup(matchOptions, true);
+            const result = getMatchOptionsLookup(
+                matchOptions,
+                KNOCKOUT_MATCH_DEFAULTS,
+            );
 
             expect(result).toBeTruthy();
             expect(result.playerCount[0]).toEqual(5);
@@ -82,7 +93,10 @@ describe('matchOptions', () => {
 
         it('without match options, returns correctly for league fixture', () => {
             const matchOptions: GameMatchOptionDto[] = [];
-            const result = getMatchOptionsLookup(matchOptions, false);
+            const result = getMatchOptionsLookup(
+                matchOptions,
+                LEAGUE_MATCH_DEFAULTS,
+            );
 
             expect(result).toBeTruthy();
             expect(result.playerCount[0]).toEqual(1);
@@ -98,15 +112,18 @@ describe('matchOptions', () => {
 
         it('without match options, returns correctly for knockout fixture', () => {
             const matchOptions: GameMatchOptionDto[] = [];
-            const result = getMatchOptionsLookup(matchOptions, true);
+            const result = getMatchOptionsLookup(
+                matchOptions,
+                KNOCKOUT_MATCH_DEFAULTS,
+            );
 
             expect(result).toBeTruthy();
             expect(result.playerCount[0]).toEqual(1);
             expect(result.startingScore[0]).toEqual(501);
-            expect(result.numberOfLegs[0]).toEqual(3);
+            expect(result.numberOfLegs[0]).toEqual(5);
             expect(result.playerCount[5]).toEqual(2);
             expect(result.startingScore[5]).toEqual(501);
-            expect(result.numberOfLegs[5]).toEqual(3);
+            expect(result.numberOfLegs[5]).toEqual(5);
             expect(result.playerCount[7]).toEqual(0);
             expect(result.startingScore[7]).toEqual(0);
             expect(result.numberOfLegs[7]).toEqual(0);

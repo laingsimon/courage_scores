@@ -31,6 +31,8 @@ import {
     getMatchOptionDefaults,
     getMatchOptionsLookup,
     IMatchOptionsLookup,
+    KNOCKOUT_MATCH_DEFAULTS,
+    LEAGUE_MATCH_DEFAULTS,
 } from '../../helpers/matchOptions.ts';
 import { PageError } from '../common/PageError.tsx';
 import { LoadingSpinnerSmall } from '../common/LoadingSpinnerSmall.tsx';
@@ -297,7 +299,9 @@ export function Score() {
         if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
             const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(
                 gameData.matchOptions!,
-                gameData.isKnockout,
+                gameData.isKnockout
+                    ? KNOCKOUT_MATCH_DEFAULTS
+                    : LEAGUE_MATCH_DEFAULTS,
             );
             gameData.matchOptions = repeat(8, (m) =>
                 getMatchOptionDefaults(m, matchOptions),
@@ -384,7 +388,9 @@ export function Score() {
                     matchIndex,
                     getMatchOptionsLookup(
                         fixtureData!.matchOptions!,
-                        fixtureData!.isKnockout,
+                        fixtureData!.isKnockout
+                            ? KNOCKOUT_MATCH_DEFAULTS
+                            : LEAGUE_MATCH_DEFAULTS,
                     ),
                 );
 
@@ -421,7 +427,9 @@ export function Score() {
                     index,
                     getMatchOptionsLookup(
                         fixtureData!.matchOptions!,
-                        fixtureData!.isKnockout,
+                        fixtureData!.isKnockout
+                            ? KNOCKOUT_MATCH_DEFAULTS
+                            : LEAGUE_MATCH_DEFAULTS,
                     ),
                 ),
             otherMatches: matchesExceptIndex,
@@ -587,7 +595,9 @@ export function Score() {
         if (details.isKnockout !== wasKnockout) {
             const matchOptionsLookup = getMatchOptionsLookup(
                 [],
-                details.isKnockout,
+                details.isKnockout
+                    ? KNOCKOUT_MATCH_DEFAULTS
+                    : LEAGUE_MATCH_DEFAULTS,
             );
 
             // set the match options - number of legs
