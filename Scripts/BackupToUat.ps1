@@ -24,7 +24,7 @@ function Get-Variable([string] $Name, [string] $Fallback)
                 return $Fallback
             }
 
-            throw [System.InvalidOperationException] "Azure variable with name '$($Name)' was found but the value is empty"
+            throw New-Object [System.InvalidOperationException] "Azure variable with name '$($Name)' was found but the value is empty"
         }
 
         return $Variable
@@ -36,7 +36,7 @@ function Get-Variable([string] $Name, [string] $Fallback)
             return $Fallback
         }
 
-        throw [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
+        throw New-Object [System.InvalidOperationException] "Could not find variable with name '$($Name)' or environment variable with name '$($EnvironmentVariableName)'"
     }
 }
 
@@ -53,7 +53,7 @@ try {
     $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/data/api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
-    throw [System.InvalidOperationException] "Unable to backup, exiting"
+    throw New-Object [System.InvalidOperationException] "Unable to backup, exiting"
 }
 
 $backupData = $backupResponse | ConvertFrom-Json
@@ -63,7 +63,7 @@ $backupData.warnings | ForEach-Object { Write-Output $_ }
 $backupData.messages | ForEach-Object { Write-Output $_ }
 
 if ($backupData.success -ne $true) {
-    throw [System.InvalidOperationException] "Backup was not successful, exiting"
+    throw New-Object [System.InvalidOperationException] "Backup was not successful, exiting"
 }
 
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
@@ -72,7 +72,7 @@ Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.len
 if ($backupData.result.zip.length -le 1024)
 {
      Write-Error "Backup is too small aborting"
-     throw [System.InvalidOperationException] "Aborting restore process, received backup is too small"
+     throw New-Object [System.InvalidOperationException] "Aborting restore process, received backup is too small"
      Exit 1
 }
 
@@ -119,7 +119,7 @@ try {
         Write-Host -ForegroundColor Red "Unable to read response body"
     }
 
-    throw [System.InvalidOperationException] "Unable to restore, exiting"
+    throw New-Object [System.InvalidOperationException] "Unable to restore, exiting"
 }
 
 $responseData = $restoreResponse | ConvertFrom-Json
@@ -130,7 +130,7 @@ $responseData.messages | ForEach-Object { Write-Output $_ }
 
 if ($responseData.success -ne $true) 
 {
-    throw [System.InvalidOperationException] "Restore was not successful, exiting"
+    throw New-Object [System.InvalidOperationException] "Restore was not successful, exiting"
 }
 
 Write-Output "Restore successful"
