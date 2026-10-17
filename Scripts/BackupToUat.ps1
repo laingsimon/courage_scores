@@ -69,6 +69,12 @@ if ($backupData.success -ne $true) {
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
 Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024))kb"
 
+if ($backupData.result.zip.length -le 100)
+{
+     Write-Output "Aborting restore process, received backup is too small"
+     Exit 1
+}
+
 try {
     Write-Output "Restoring '$($Identity)' backup into $($RestoreDestination)"
     ## needs to send a multi-part form request with the zip file
