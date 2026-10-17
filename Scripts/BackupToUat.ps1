@@ -69,7 +69,7 @@ if ($backupData.success -ne $true) {
 $zipBytes = [System.Convert]::FromBase64String($backupData.result.zip)
 Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.length / 1024))kb ($($backupData.result.zip.length))"
 
-if ($backupData.result.zip.length -le 100)
+if ($backupData.result.zip.length -le 1024)
 {
      throw [System.InvalidOperationException] "Aborting restore process, received backup is too small"
 }
