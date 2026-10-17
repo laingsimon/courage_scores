@@ -1030,7 +1030,7 @@ describe('Score', () => {
             expect(updatedFixture.isKnockout).toEqual(true);
             const matchOptions = updatedFixture.matchOptions!;
             const legs = matchOptions.map((mo) => mo.numberOfLegs);
-            expect(legs).toEqual([3, 3, 3, 3, 3, 3, 3, 0]);
+            expect(legs).toEqual([5, 5, 5, 5, 5, 5, 5, 0]);
         });
 
         it('can change to league fixture when match options are missing', async () => {
