@@ -71,7 +71,7 @@ Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.len
 
 if ($backupData.result.zip.length -le 1024)
 {
-     Write-Error "Backup is too small aborting"
+     Write-Output "Backup is too small aborting"
      throw "Aborting restore process, received backup is too small"
      Exit 1
 }
