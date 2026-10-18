@@ -83,46 +83,92 @@ public class DataService : IDataService
 
     public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(request.Identity))
+        var session = default(IDisposable?);
+        try
         {
-            return Unsuccessful<ExportDataResultDto>("Missing identity");
+            if (string.IsNullOrEmpty(request.Identity))
+            {
+                return Unsuccessful<ExportDataResultDto>("Missing identity");
+            }
+
+            if (string.IsNullOrEmpty(request.RequestToken) ||
+                request.RequestToken != _configuration["BackupRequestToken"])
+            {
+                return Unsuccessful<ExportDataResultDto>("Invalid request token");
+            }
+
+            var user = await _userService.GetUser(token);
+            if (user == null)
+            {
+                user = new UserDto
+                {
+                    AccessLevels =
+                    {
+                        { AccessOption.ExportData, AccessLevelDto.Granted },
+                    }
+                };
+
+                session = await _userService.Login(user, token);
+            }
+
+            var exportRequest = new ExportDataRequestDto
+            {
+                Password = _configuration["BackupPassword"],
+                IncludeDeletedEntries = true,
+            };
+
+            var backup = await DoExport(request.Identity, exportRequest, token);
+
+            if (backup.Success && backup.Result?.Zip != null)
+            {
+                var fileName = $"Backup_{DateTime.UtcNow:yyyy-MM-dd'T'HH-mm}.zip";
+                await _blobStorageRepository.Write("backup", fileName, backup.Result.Zip, token);
+            }
+
+            return backup;
         }
-
-        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["BackupRequestToken"])
+        finally
         {
-            return Unsuccessful<ExportDataResultDto>("Invalid request token");
+            session?.Dispose();
         }
-
-        var exportRequest = new ExportDataRequestDto
-        {
-            Password = _configuration["BackupPassword"],
-            IncludeDeletedEntries = true,
-        };
-
-        var backup = await DoExport(request.Identity, exportRequest, token);
-
-        if (backup.Success && backup.Result?.Zip != null)
-        {
-            var fileName = $"Backup_{DateTime.UtcNow:yyyy-MM-dd'T'HH-mm}.zip";
-            await _blobStorageRepository.Write("backup", fileName, backup.Result.Zip, token);
-        }
-
-        return backup;
     }
 
     public async Task<ActionResultDto<ImportDataResultDto>> RestoreData(RestoreDataRequestDto request, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(request.Identity))
+        var session = default(IDisposable?);
+        try
         {
-            return Unsuccessful<ImportDataResultDto>("Missing identity");
-        }
+            if (string.IsNullOrEmpty(request.Identity))
+            {
+                return Unsuccessful<ImportDataResultDto>("Missing identity");
+            }
 
-        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["RestoreRequestToken"])
+            if (string.IsNullOrEmpty(request.RequestToken) ||
+                request.RequestToken != _configuration["RestoreRequestToken"])
+            {
+                return Unsuccessful<ImportDataResultDto>("Invalid request token");
+            }
+
+            var user = await _userService.GetUser(token);
+            if (user == null)
+            {
+                user = new UserDto
+                {
+                    AccessLevels =
+                    {
+                        { AccessOption.ImportData, AccessLevelDto.Granted },
+                    }
+                };
+
+                session = await _userService.Login(user, token);
+            }
+
+            return await DoImport(request, token);
+        }
+        finally
         {
-            return Unsuccessful<ImportDataResultDto>("Invalid request token");
+            session?.Dispose();
         }
-
-        return await DoImport(request, token);
     }
 
     public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
