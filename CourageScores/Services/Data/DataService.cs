@@ -285,9 +285,14 @@ public class DataService : IDataService
                 await table.ExportData(_database, result, builder, request, token);
             }
 
+            if (result.Tables.Count == 0)
+            {
+                actionResult.Errors.Add("No tables were exported");
+            }
+
             result.Zip = await builder.CreateZip();
 
-            actionResult.Success = true;
+            actionResult.Success = result.Tables.Count > 0;
         }
         catch (Exception exc)
         {

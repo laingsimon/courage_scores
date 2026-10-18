@@ -155,7 +155,14 @@ public class DataServiceTests
     public async Task ExportData_WhenZipCreated_SetsZipInResult()
     {
         var zipBytes = new byte[] { 0, 1, 2 };
+        var table = new Mock<ITableAccessor>();
+        table
+            .Setup(t => t.ExportData(It.IsAny<Database>(), It.IsAny<ExportDataResultDto>(), _zipBuilder.Object, It.IsAny<ExportDataRequestDto>(), _token))
+            .Callback((Database _, ExportDataResultDto result, IZipBuilder _, ExportDataRequestDto _, CancellationToken _) => result.Tables.Add("TABLE", 0));
         _zipBuilder.Setup(z => z.CreateZip()).ReturnsAsync(zipBytes);
+        _cosmosTableService
+            .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable(table.Object));
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
@@ -313,12 +320,16 @@ public class DataServiceTests
     public async Task BackupData_GivenCorrectRequestToken_ReturnsSuccessfulAndPersistsToBlobStorage()
     {
         var request = GetBackupDataRequestDto();
+        var table = new Mock<ITableAccessor>();
+        table
+            .Setup(t => t.ExportData(It.IsAny<Database>(), It.IsAny<ExportDataResultDto>(), _zipBuilder.Object, It.IsAny<ExportDataRequestDto>(), _token))
+            .Callback((Database _, ExportDataResultDto result, IZipBuilder _, ExportDataRequestDto _, CancellationToken _) => result.Tables.Add("TABLE", 0));
         _zipBuilderFactory
             .Setup(f => f.Create("someone", It.IsAny<ExportDataRequestDto>(), _token))
             .ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
             .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<ITableAccessor>());
+            .Returns(TestUtilities.AsyncEnumerable(table.Object));
 
         var result = await _dataService.BackupData(request, _token);
 
