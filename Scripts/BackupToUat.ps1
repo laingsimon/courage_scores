@@ -4,6 +4,16 @@
 
 param ([switch] $dryRun, [string] $Source = "courageleague.azurewebsites.net", [string] $Destination = "courageleagueuat.azurewebsites.net")
 
+Function Get-Path($HostName)
+{
+    If ($HostName -like "*localhost*")
+    {
+         Return ""
+    }
+
+    Return "data/"
+}
+
 function Get-Variable([string] $Name, [string] $Fallback = "")
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
@@ -46,16 +56,11 @@ $Identity = (Get-Variable -Name "BackupIdentity" -Fallback "prod_backup")
 $RestorePassword = (Get-Variable -Name "RestorePassword")
 $RestoreToken = (Get-Variable -Name "RestoreToken")
 $BackupToken = (Get-Variable -Name "BackupToken")
-$Path = "data/"
-if ($RestoreDestination -like "*localhost*")
-{
-    $Path = ""
-}
 
 try {
     Write-Output "Requesting backup from $($BackupSource)"
     $backupRequest = @{requestToken=$backupToken;identity=$identity} | ConvertTo-Json
-    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/$($Path)api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
+    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/$(Get-Path($BackupSource))api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
     throw "Unable to backup, exiting"
@@ -104,7 +109,7 @@ try {
     $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
     $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/$($Path)api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
+    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/$(Get-Path($RestoreDestination))api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
     $TempFileName = [System.IO.Path]::GetTempFileName() + ".zip"
     [System.IO.File]::WriteAllBytes($TempFileName, $zipBytes)
