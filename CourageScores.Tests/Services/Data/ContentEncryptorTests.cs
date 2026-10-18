@@ -38,7 +38,7 @@ public class ContentEncryptorTests
 
             // If decryption returned a payload, assert it does not equal the expected plaintext.
             Assert.That(content, Is.Not.EqualTo(expected),
-                $"Expected attempt to decrypt content of zip to fail, instead got the following content: {content ?? "<null>"} ({content?.Length ?? 0} byte/s)");
+                $"Expected attempt to decrypt content of zip to fail, instead got the following content: {content} ({content.Length} byte/s)");
         }
         catch (CryptographicException)
         {

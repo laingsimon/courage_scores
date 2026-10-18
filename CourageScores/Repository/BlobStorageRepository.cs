@@ -52,8 +52,15 @@ public class BlobStorageRepository : IBlobStorageRepository
 
     private BlobContainerClient GetContainer(string container)
     {
-        var client = _blobServiceClient.GetBlobContainerClient(container);
-        client.CreateIfNotExists();
-        return client;
+        try
+        {
+            var client = _blobServiceClient.GetBlobContainerClient(container);
+            client.CreateIfNotExists();
+            return client;
+        }
+        catch (Exception exc)
+        {
+            throw new InvalidOperationException($"Unable to get (or create) container `{container}`", exc);
+        }
     }
 }

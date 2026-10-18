@@ -20,6 +20,12 @@ public class DataImporterFactory : IDataImporterFactory
 
     public async Task<IDataImporter> Create(ImportDataRequestDto request, ImportDataResultDto result, IAsyncEnumerable<TableDto> tables)
     {
-        return new DataImporter(_database, request, result, await tables.ToList(), _flags);
+        var tableList = await tables.ToList();
+        if (tableList.Count == 0)
+        {
+            throw new ArgumentException("List of tables is empty", nameof(tables));
+        }
+
+        return new DataImporter(_database, request, result, tableList, _flags);
     }
 }
