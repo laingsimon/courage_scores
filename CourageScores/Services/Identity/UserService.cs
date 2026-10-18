@@ -78,6 +78,24 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<IDisposable> Login(UserDto user, CancellationToken token)
+    {
+        var previousState = new TemporarySession(this, _userResolved, _user);
+        _userResolved = true;
+        _user = await _userAdapter.Adapt(user, UserAccessContext.None(), token);
+
+        return previousState;
+    }
+
+    private class TemporarySession(UserService service, bool wasUserResolved, User? wasUser) : IDisposable
+    {
+        public void Dispose()
+        {
+            service._userResolved = wasUserResolved;
+            service._user = wasUser;
+        }
+    }
+
     public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {
         var loggedInUser = await GetUser(token);

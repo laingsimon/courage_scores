@@ -4,7 +4,17 @@
 
 param ([switch] $dryRun, [string] $Source = "courageleague.azurewebsites.net", [string] $Destination = "courageleagueuat.azurewebsites.net")
 
-function Get-Variable([string] $Name, [string] $Fallback)
+Function Get-Path($HostName)
+{
+    If ($HostName -like "*localhost*")
+    {
+         Return ""
+    }
+
+    Return "data/"
+}
+
+function Get-Variable([string] $Name, [string] $Fallback = "")
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
     $EnvironmentVariable = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
@@ -31,7 +41,7 @@ function Get-Variable([string] $Name, [string] $Fallback)
     }
     catch
     {
-        if ($Fallback -ne $null)
+        if ($Fallback -ne "")
         {
             return $Fallback
         }
@@ -50,7 +60,7 @@ $BackupToken = (Get-Variable -Name "BackupToken")
 try {
     Write-Output "Requesting backup from $($BackupSource)"
     $backupRequest = @{requestToken=$backupToken;identity=$identity} | ConvertTo-Json
-    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/data/api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
+    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/$(Get-Path($BackupSource))api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
     throw "Unable to backup, exiting"
@@ -71,9 +81,12 @@ Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.len
 
 if ($backupData.result.zip.length -le 1024)
 {
-     Write-Output "Backup is too small aborting"
-     throw "Aborting restore process, received backup is too small"
-     Exit 1
+    $TempFileName = [System.IO.Path]::GetTempFileName() + ".zip"
+    [System.IO.File]::WriteAllBytes($TempFileName, $zipBytes)
+
+    Write-Output "Backup is too small aborting, response written to $($TempFileName)"
+    throw "Aborting restore process, received backup is too small"
+    Exit 1
 }
 
 try {
@@ -96,9 +109,12 @@ try {
     $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
     $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/data/api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
+    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/$(Get-Path($RestoreDestination))api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
-    # Write-Error $_.Exception.Response.Content
+    $TempFileName = [System.IO.Path]::GetTempFileName() + ".zip"
+    [System.IO.File]::WriteAllBytes($TempFileName, $zipBytes)
+    Write-Host -ForegroundColor Cyan "Backup content written to $($TempFileName)"
+
     Write-Error $_.Exception.Response
 
     try

@@ -35,13 +35,15 @@ public class DataServiceTests
     private Mock<IDataBrowserRepository<object>> _dataViewRepository = null!;
     private Mock<IBlobStorageRepository> _blobStorageRepository = null!;
     private HashSet<AccessOption> _access = null!;
+    private Mock<IUserService> _userService = null!;
+    private Mock<IDisposable>? _userSession;
 
     [SetUp]
     public void SetupEachTest()
     {
         var fixture = AutoFixture.Create();
         _database = fixture.FreezeMock<Database>();
-        var userService = fixture.FreezeMock<IUserService>();
+        _userService = fixture.FreezeMock<IUserService>();
         _zipBuilderFactory = fixture.FreezeMock<IZipBuilderFactory>();
         _cosmosTableService = fixture.FreezeMock<ICosmosTableService>();
         _dataImporterFactory = fixture.FreezeMock<IDataImporterFactory>();
@@ -61,30 +63,25 @@ public class DataServiceTests
             Zip = new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
             Password = "correct password",
         };
+        _userSession = null;
         _user = new UserDto { Name = "USER" };
         _importMetaData = new ExportMetaData { Hostname = "HOST" };
-        userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
-        _cosmosTableService
-            .Setup(s => s.GetTables(_exportRequest, _token))
-            .Returns(() => TestUtilities.AsyncEnumerable(_tables));
-        zipFileReaderFactory
-            .Setup(f => f.Create(It.IsAny<Stream>(), "correct password"))
-            .ReturnsAsync(() => _importZip.Object);
-        zipFileReaderFactory
-            .Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password")))
-            .Throws(() => new CryptographicException("bad password"));
+        _cosmosTableService.Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_tables));
+        zipFileReaderFactory.Setup(f => f.Create(It.IsAny<Stream>(), "correct password")).ReturnsAsync(() => _importZip.Object);
+        zipFileReaderFactory.Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password"))).Throws(() => new CryptographicException("bad password"));
         _dataImporterFactory
             .Setup(f => f.Create(_importRequest, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);
-        _importZip.Setup(z => z.ReadJson<ExportMetaData>(ExportMetaData.FileName))
-            .ReturnsAsync(_importMetaData);
+        _importZip.Setup(z => z.ReadJson<ExportMetaData>(ExportMetaData.FileName)).ReturnsAsync(_importMetaData);
         _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
         _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
         accessService
             .Setup(s => s.HasAccess(_user, It.IsAny<AccessOption>(), It.IsAny<UserAccessContext>(), _token))
             .ReturnsAsync((UserDto? _, AccessOption access, UserAccessContext _, CancellationToken _) => _access.Contains(access));
+        _userService.Setup(s => s.Login(It.IsAny<UserDto>(), _token)).ReturnsAsync(() => (_userSession = new Mock<IDisposable>()).Object);
 
         _dataService = fixture.Create<DataService>();
     }
@@ -112,9 +109,7 @@ public class DataServiceTests
     [Test]
     public async Task ExportData_WhenAnExceptionOccurs_ReturnsUnsuccessful()
     {
-        _zipBuilderFactory
-            .Setup(f => f.Create("USER", _exportRequest, _token))
-            .Throws(() => new InvalidOperationException("some error"));
+        _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).Throws(() => new InvalidOperationException("some error"));
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
@@ -156,6 +151,7 @@ public class DataServiceTests
     {
         var zipBytes = new byte[] { 0, 1, 2 };
         _zipBuilder.Setup(z => z.CreateZip()).ReturnsAsync(zipBytes);
+        SetupBackupTables();
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
@@ -280,9 +276,7 @@ public class DataServiceTests
     [TestCase(null)]
     public async Task BackupData_GivenNoRequestToken_ReturnsUnsuccessful(string requestToken)
     {
-        var request = GetBackupDataRequestDto(requestToken: requestToken);
-
-        var result = await _dataService.BackupData(request, _token);
+        var result = await _dataService.BackupData(GetBackupDataRequestDto(requestToken: requestToken), _token);
 
         result.AssertError("Invalid request token");
     }
@@ -291,9 +285,7 @@ public class DataServiceTests
     [TestCase(null)]
     public async Task BackupData_GivenNoIdentity_ReturnsUnsuccessful(string identity)
     {
-        var request = GetBackupDataRequestDto(identity: identity, requestToken: "correct");
-
-        var result = await _dataService.BackupData(request, _token);
+        var result = await _dataService.BackupData(GetBackupDataRequestDto(identity: identity, requestToken: "correct"), _token);
 
         result.AssertError("Missing identity");
     }
@@ -302,9 +294,7 @@ public class DataServiceTests
     [TestCase("CoRReCT")]
     public async Task BackupData_GivenIncorrectRequestToken_ReturnsUnsuccessful(string requestToken)
     {
-        var request = GetBackupDataRequestDto(requestToken: requestToken);
-
-        var result = await _dataService.BackupData(request, _token);
+        var result = await _dataService.BackupData(GetBackupDataRequestDto(requestToken: requestToken), _token);
 
         result.AssertError("Invalid request token");
     }
@@ -312,34 +302,38 @@ public class DataServiceTests
     [Test]
     public async Task BackupData_GivenCorrectRequestToken_ReturnsSuccessfulAndPersistsToBlobStorage()
     {
-        var request = GetBackupDataRequestDto();
-        _zipBuilderFactory
-            .Setup(f => f.Create("someone", It.IsAny<ExportDataRequestDto>(), _token))
-            .ReturnsAsync(_zipBuilder.Object);
-        _cosmosTableService
-            .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<ITableAccessor>());
+        SetupBackupTables();
+        _user = null;
 
-        var result = await _dataService.BackupData(request, _token);
+        var result = await _dataService.BackupData(GetBackupDataRequestDto(), _token);
 
         result.AssertSuccessful();
         var now = DateTime.UtcNow.ToString("yyyy-MM-ddT");
         _blobStorageRepository.Verify(r => r.Write("backup", It.IsRegex($@"Backup_{now}\d{{2}}-\d{{2}}\.zip"), result.Result!.Zip!, _token));
+        _userService.Verify(s => s.Login(It.Is<UserDto>(u => u.AccessLevels.Keys.SequenceEqual(new[] { AccessOption.ExportData })), _token));
+        _userSession?.Verify(s => s.Dispose());
+    }
+
+    [Test]
+    public async Task BackupData_WhenLoggedIn_DoesNotImpersonate()
+    {
+        SetupBackupTables();
+
+        var result = await _dataService.BackupData(GetBackupDataRequestDto(), _token);
+
+        result.AssertSuccessful();
+        _userService.Verify(s => s.Login(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.That(_userSession, Is.Null);
     }
 
     [Test]
     public async Task BackupData_GivenCorrectRequestToken_CreatesZipWithCorrectPassword()
     {
-        var request = GetBackupDataRequestDto();
         _configuration.Setup(c => c["BackupPassword"]).Returns("ZipPassword");
-        _zipBuilderFactory
-            .Setup(f => f.Create("USER", It.IsAny<ExportDataRequestDto>(), _token))
-            .ReturnsAsync(_zipBuilder.Object);
-        _cosmosTableService
-            .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<ITableAccessor>());
+        SetupBackupTables();
+        _user = null;
 
-        await _dataService.BackupData(request, _token);
+        await _dataService.BackupData(GetBackupDataRequestDto(), _token);
 
         _zipBuilderFactory.Verify(f => f.Create("someone", It.Is<ExportDataRequestDto>(r => r.Password == "ZipPassword"), _token));
     }
@@ -348,9 +342,7 @@ public class DataServiceTests
     [TestCase(null)]
     public async Task RestoreData_GivenNoRequestToken_ReturnsUnsuccessful(string requestToken)
     {
-        var request = GetRestoreDataRequestDto(requestToken: requestToken);
-
-        var result = await _dataService.RestoreData(request, _token);
+        var result = await _dataService.RestoreData(GetRestoreDataRequestDto(requestToken: requestToken), _token);
 
         result.AssertError("Invalid request token");
     }
@@ -359,9 +351,7 @@ public class DataServiceTests
     [TestCase(null)]
     public async Task RestoreData_GivenNoIdentity_ReturnsUnsuccessful(string identity)
     {
-        var request = GetRestoreDataRequestDto(identity: identity, requestToken: "correct");
-
-        var result = await _dataService.RestoreData(request, _token);
+        var result = await _dataService.RestoreData(GetRestoreDataRequestDto(identity: identity, requestToken: "correct"), _token);
 
         result.AssertError("Missing identity");
     }
@@ -370,9 +360,7 @@ public class DataServiceTests
     [TestCase("CoRReCT")]
     public async Task RestoreData_GivenIncorrectRequestToken_ReturnsUnsuccessful(string requestToken)
     {
-        var request = GetRestoreDataRequestDto(requestToken: requestToken);
-
-        var result = await _dataService.RestoreData(request, _token);
+        var result = await _dataService.RestoreData(GetRestoreDataRequestDto(requestToken: requestToken), _token);
 
         result.AssertError("Invalid request token");
     }
@@ -380,9 +368,7 @@ public class DataServiceTests
     [Test]
     public async Task RestoreData_GivenNoZipFile_ReturnsUnsuccessful()
     {
-        var request = GetRestoreDataRequestDto();
-
-        var result = await _dataService.RestoreData(request, _token);
+        var result = await _dataService.RestoreData(GetRestoreDataRequestDto(), _token);
 
         result.AssertError("No zip file provided");
     }
@@ -398,10 +384,31 @@ public class DataServiceTests
             .Setup(f => f.Create(request, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);
         SetupImportMessage();
+        _user = null;
 
         var result = await _dataService.RestoreData(request, _token);
 
         result.AssertSuccessful("Processing data from HOST exported on 01 Jan 0001 by ", "import message1");
+        _userService.Verify(s => s.Login(It.Is<UserDto>(u => u.AccessLevels.Keys.SequenceEqual(new[] { AccessOption.ImportData })), _token));
+        _userSession?.Verify(s => s.Dispose());
+    }
+
+    [Test]
+    public async Task RestoreData_WhenLoggedIn_DoesNotImpersonate()
+    {
+        var request = GetRestoreDataRequestDto(
+            zip: new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
+            password: "correct password");
+        _importZip.Setup(z => z.HasFile(It.IsAny<string>())).Returns(true);
+        _dataImporterFactory
+            .Setup(f => f.Create(request, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
+            .ReturnsAsync(_tableImporter.Object);
+        SetupImportMessage();
+
+        await _dataService.RestoreData(request, _token);
+
+        _userService.Verify(s => s.Login(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.That(_userSession, Is.Null);
     }
 
     [Test]
@@ -460,9 +467,8 @@ public class DataServiceTests
     public async Task View_WhenLoggedOut_ReturnsNotLoggedIn()
     {
         _user = null;
-        var id = Guid.NewGuid();
 
-        var result = await _dataService.View("table", id, _token);
+        var result = await _dataService.View("table", Guid.NewGuid(), _token);
 
         result.AssertError("Not logged in");
     }
@@ -471,9 +477,8 @@ public class DataServiceTests
     public async Task View_WhenNotPermitted_ReturnsNotPermitted()
     {
         _access = _access.Without(AccessOption.ExportData);
-        var id = Guid.NewGuid();
 
-        var result = await _dataService.View("table", id, _token);
+        var result = await _dataService.View("table", Guid.NewGuid(), _token);
 
         result.AssertError("Not permitted");
     }
@@ -481,9 +486,7 @@ public class DataServiceTests
     [Test]
     public async Task View_WhenTableEmpty_ReturnsTableMissing()
     {
-        var id = Guid.NewGuid();
-
-        var result = await _dataService.View("", id, _token);
+        var result = await _dataService.View("", Guid.NewGuid(), _token);
 
         result.AssertError("Table not supplied");
     }
@@ -491,9 +494,7 @@ public class DataServiceTests
     [Test]
     public async Task View_WhenTableNotFound_ReturnsTableNotFound()
     {
-        var id = SetupDataView(tableExists: false);
-
-        var result = await _dataService.View("table", id, _token);
+        var result = await _dataService.View("table", SetupDataView(tableExists: false), _token);
 
         result.AssertError("Table not found: table");
     }
@@ -501,9 +502,7 @@ public class DataServiceTests
     [Test]
     public async Task View_WhenRecordNotFound_ReturnsRecordNotFound()
     {
-        var id = SetupDataView();
-
-        var result = await _dataService.View("table", id, _token);
+        var result = await _dataService.View("table", SetupDataView(), _token);
 
         result.AssertError("Record not found");
     }
@@ -512,9 +511,8 @@ public class DataServiceTests
     public async Task View_WhenItemFound_ReturnsData()
     {
         var item = new object();
-        var id = SetupDataView(item);
 
-        var result = await _dataService.View("table", id, _token);
+        var result = await _dataService.View("table", SetupDataView(item), _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Errors, Is.Empty);
@@ -555,5 +553,15 @@ public class DataServiceTests
         _dataViewRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(() => item);
 
         return id;
+    }
+
+    private void SetupBackupTables()
+    {
+        var table = new Mock<ITableAccessor>();
+        _tables = [table.Object];
+        table
+            .Setup(t => t.ExportData(It.IsAny<Database>(), It.IsAny<ExportDataResultDto>(), _zipBuilder.Object, It.IsAny<ExportDataRequestDto>(), _token))
+            .Callback((Database _, ExportDataResultDto result, IZipBuilder _, ExportDataRequestDto _, CancellationToken _) => result.Tables.Add("TABLE", 0));
+        _zipBuilderFactory.Setup(f => f.Create("someone", It.IsAny<ExportDataRequestDto>(), _token)).ReturnsAsync(_zipBuilder.Object);
     }
 }

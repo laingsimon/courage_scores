@@ -13,7 +13,6 @@ using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Command;
 
-[TestFixture]
 public class UploadPhotoCommandTests
 {
     private readonly CancellationToken _token = CancellationToken.None;
