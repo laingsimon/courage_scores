@@ -4,7 +4,7 @@
 
 param ([switch] $dryRun, [string] $Source = "courageleague.azurewebsites.net", [string] $Destination = "courageleagueuat.azurewebsites.net")
 
-function Get-Variable([string] $Name, [string] $Fallback)
+function Get-Variable([string] $Name, [string] $Fallback = "")
 {
     $EnvironmentVariableName = "RunBackup_$($Name)"
     $EnvironmentVariable = [Environment]::GetEnvironmentVariable($EnvironmentVariableName)
@@ -31,7 +31,7 @@ function Get-Variable([string] $Name, [string] $Fallback)
     }
     catch
     {
-        if ($Fallback -ne $null)
+        if ($Fallback -ne "")
         {
             return $Fallback
         }
@@ -71,9 +71,12 @@ Write-Output "Received backup: $([System.Math]::Round($backupData.result.zip.len
 
 if ($backupData.result.zip.length -le 1024)
 {
-     Write-Output "Backup is too small aborting"
-     throw "Aborting restore process, received backup is too small"
-     Exit 1
+    $TempFileName = [System.IO.Path]::GetTempFileName() + ".zip"
+    [System.IO.File]::WriteAllBytes($TempFileName, $zipBytes)
+
+    Write-Output "Backup is too small aborting, response written to $($TempFileName)"
+    throw "Aborting restore process, received backup is too small"
+    Exit 1
 }
 
 try {
