@@ -46,11 +46,16 @@ $Identity = (Get-Variable -Name "BackupIdentity" -Fallback "prod_backup")
 $RestorePassword = (Get-Variable -Name "RestorePassword")
 $RestoreToken = (Get-Variable -Name "RestoreToken")
 $BackupToken = (Get-Variable -Name "BackupToken")
+$Path = "data/"
+if ($RestoreDestination -like "*localhost*")
+{
+    $Path = ""
+}
 
 try {
     Write-Output "Requesting backup from $($BackupSource)"
     $backupRequest = @{requestToken=$backupToken;identity=$identity} | ConvertTo-Json
-    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/data/api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
+    $backupResponse = Invoke-WebRequest -UseDefaultCredentials -Uri "https://$($BackupSource)/$($Path)api/Data/Backup/" -Method POST -UseBasicParsing -ContentType "application/json" -Body $backupRequest
 } catch {
     Write-Error $_.Exception
     throw "Unable to backup, exiting"
@@ -99,7 +104,7 @@ try {
     $MultipartContent.Add([System.Net.Http.StringContent]::new($dryRun), "dryRun")
     $MultipartContent.Add([System.Net.Http.StringContent]::new("false"), "purgeData")
 
-    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/data/api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
+    $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/$($Path)api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
     # Write-Error $_.Exception.Response.Content
     Write-Error $_.Exception.Response
