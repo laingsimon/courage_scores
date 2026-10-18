@@ -106,7 +106,10 @@ try {
 
     $restoreResponse = Invoke-WebRequest -Uri "https://$($RestoreDestination)/$($Path)api/Data/Restore/" -Method POST -UseBasicParsing -Body $MultipartContent
 } catch {
-    # Write-Error $_.Exception.Response.Content
+    $TempFileName = [System.IO.Path]::GetTempFileName() + ".zip"
+    [System.IO.File]::WriteAllBytes($TempFileName, $zipBytes)
+    Write-Host -ForegroundColor Cyan "Backup content written to $($TempFileName)"
+
     Write-Error $_.Exception.Response
 
     try
