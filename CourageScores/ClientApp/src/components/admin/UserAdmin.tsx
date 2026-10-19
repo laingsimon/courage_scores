@@ -132,6 +132,11 @@ const accessMappings: IAccessMapping[] = [
         description: 'Manage the templates used to create new seasons',
     },
     {
+        option: AccessOption.runReports,
+        section: 'League',
+        name: 'Run reports',
+    },
+    {
         option: AccessOption.manageNotes,
         section: 'League',
         name: 'Manage notes',
