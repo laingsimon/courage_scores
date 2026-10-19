@@ -113,6 +113,7 @@ const accessMappings: IAccessMapping[] = [
         section: 'League',
         name: 'Manage divisions',
     },
+    
     {
         option: AccessOption.manageFeatures,
         section: 'System admin',
@@ -130,6 +131,11 @@ const accessMappings: IAccessMapping[] = [
         section: 'League',
         name: 'Manage season templates',
         description: 'Manage the templates used to create new seasons',
+    },
+    {
+        option: AccessOption.runReports,
+        section: 'League',
+        name: 'Run reports',
     },
     {
         option: AccessOption.manageNotes,
