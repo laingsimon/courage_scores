@@ -328,9 +328,6 @@ public class FinalsNightReport : CompositeReport
         yield return Row(Cell(text: "Pairs winner*"));
         yield return Row(Cell(text: "Singles semi-finalists*"));
         yield return Row(Cell(text: "Singles semi-finalists*"));
-        yield return Row(Cell(text: "Singles semi-finalists*"));
-        yield return Row(Cell(text: "Singles semi-finalists*"));
-        yield return Row(Cell(text: "Singles runners up*"));
         yield return Row(Cell(text: "Singles runners up*"));
         yield return Row(Cell(text: "Singles winner*"));
 
