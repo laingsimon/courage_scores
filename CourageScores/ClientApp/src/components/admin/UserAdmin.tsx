@@ -113,7 +113,6 @@ const accessMappings: IAccessMapping[] = [
         section: 'League',
         name: 'Manage divisions',
     },
-    
     {
         option: AccessOption.manageFeatures,
         section: 'System admin',
