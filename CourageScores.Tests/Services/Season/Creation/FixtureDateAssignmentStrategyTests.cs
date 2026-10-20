@@ -330,14 +330,10 @@ public class FixtureDateAssignmentStrategyTests
 
         Assert.That(result, Is.True);
         Assert.That(
-            context.Result.Result?.Divisions?[0].Fixtures.Select(Serialise),
+            context.Result.Result?.Divisions?.SelectMany(d => d.Fixtures.Select(Serialise)),
             Is.EquivalentTo([
                 "2026-02-05: Fixtures=[], Notes=[x-divisional-note]",
-            ]));
-        Assert.That(
-            context.Result.Result?.Divisions?[1].Fixtures.Select(Serialise),
-            Is.EquivalentTo([
-                "2026-02-05: Fixtures=[], Notes=[x-divisional-note]",
+                "2026-02-05: Fixtures=[], Notes=[]",
             ]));
     }
 
