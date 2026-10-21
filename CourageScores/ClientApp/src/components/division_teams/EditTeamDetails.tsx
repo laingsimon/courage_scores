@@ -33,7 +33,7 @@ export function EditTeamDetails({
     team,
     lastUpdated,
 }: IEditTeamDetailsProps) {
-    const { divisions, onError } = useApp();
+    const { divisions, onError, reloadTeams } = useApp();
     const { teamApi } = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
     const [createAnother, setCreateAnother] = useState<boolean>(false);
@@ -77,6 +77,9 @@ export function EditTeamDetails({
                 }
                 if (onSaved && !createAnother) {
                     await onSaved(response.result!);
+                }
+                if (createAnother) {
+                    await reloadTeams();
                 }
             } else {
                 setSaveError(response);
