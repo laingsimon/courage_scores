@@ -835,8 +835,8 @@ describe('Division', () => {
                     `/teams/?division=unknown`,
                 );
 
-                expect(getContent().text()).toEqual(
-                    'Requested division/season could not be found',
+                expect(getContent().text()).toContain(
+                    'The requested division(s) could not be found',
                 );
             });
 
@@ -847,8 +847,8 @@ describe('Division', () => {
                     `/teams/UNKNOWN/?division=${division.id}`,
                 );
 
-                expect(getContent().text()).toEqual(
-                    'Requested division/season could not be found',
+                expect(getContent().text()).toContain(
+                    'The requested season could not be found',
                 );
             });
 
