@@ -100,7 +100,11 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             }
 
             success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;
-            foreach (var note in dateTemplate.Notes.Where(n => n.DivisionNumber == division).Concat(GetCrossDivisionalNotesFromAllTemplates(templateDateForDivisions)))
+            var notes = dateTemplate.Notes
+                .Where(n => n.DivisionNumber == division)
+                .Concat(division == 1 ? GetCrossDivisionalNotesFromAllTemplates(templateDateForDivisions) : [])
+                .ToArray();
+            foreach (var note in notes)
             {
                 ConvertToNote(note, currentDate, season.Id, context.MatchContext.Divisions, divisionToAddFixturesTo);
             }

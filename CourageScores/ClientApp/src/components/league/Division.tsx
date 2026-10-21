@@ -337,17 +337,9 @@ export function Division() {
     };
     const divisionDataToUse =
         overrideDivisionData || divisionData || emptyDivisionData;
-
-    if (
+    const requestedDivisionOrSeasonNotFound =
         any(requestedDivisions, (d) => d.id === INVALID.id) ||
-        requestedSeason?.id === INVALID.id
-    ) {
-        return (
-            <div className="p-3 content-background">
-                Requested division/season could not be found
-            </div>
-        );
-    }
+        requestedSeason?.id === INVALID.id;
 
     try {
         return (
@@ -366,7 +358,7 @@ export function Division() {
                         overrideMode={requestedMode}
                     />
                 ) : null}
-                {controls ? (
+                {controls && !requestedDivisionOrSeasonNotFound ? (
                     <ul className="nav nav-tabs d-print-none">
                         <li className="nav-item">
                             <NavLink
@@ -461,7 +453,22 @@ export function Division() {
                         ) : null}
                     </ul>
                 ) : null}
-                {dataErrors && account ? (
+                {requestedDivisionOrSeasonNotFound && (
+                    <div className="p-3 content-background">
+                        <h5>
+                            ⚠️ The requested{' '}
+                            {any(requestedDivisions, (d) => d === INVALID)
+                                ? 'division(s)'
+                                : ''}
+                            {requestedSeason === INVALID ? 'season' : ''} could
+                            not be found.
+                        </h5>
+                        <br />
+                        Select a division and/or season from the drop downs
+                        above
+                    </div>
+                )}
+                {dataErrors && account && !requestedDivisionOrSeasonNotFound ? (
                     <div className="content-background p-3">
                         <h3>⚠ Errors in division data</h3>
                         <ol>
@@ -480,7 +487,8 @@ export function Division() {
                 ) : null}
                 {(!dataErrors || !account) &&
                 any(requestedDivisions) &&
-                requestedSeason?.id !== INVALID.id ? (
+                requestedSeason?.id !== INVALID.id &&
+                !requestedDivisionOrSeasonNotFound ? (
                     <>
                         {effectiveTab === 'teams' &&
                         divisionDataToUse.season ? (
