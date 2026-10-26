@@ -30,11 +30,11 @@ Function Extract-Vulnerabilities($NpmAuditResult)
     if ($NpmAuditResult.ExitCode -eq 0)
     {
         # no vulnerabilities, exit early
-        if ($SilencedVulnerabilities.Count -ge 0)
+        if ($SilencedVulnerabilities -ne $null -and $SilencedVulnerabilities.Count -ge 0)
         {
             # some vulnerabilities are needlessly silenced
             Write-LogMessage "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
-            $SilencedVulnerabilitiesShouldBeRemoved = $true
+            $script:SilencedVulnerabilitiesShouldBeRemoved = $true
         }
         return
     }
