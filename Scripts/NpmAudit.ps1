@@ -30,11 +30,11 @@ Function Extract-Vulnerabilities($NpmAuditResult)
     if ($NpmAuditResult.ExitCode -eq 0)
     {
         # no vulnerabilities, exit early
-        if ($SilencedVulnerabilities.Count -ge 0)
+        if ($SilencedVulnerabilities -ne $null -and $SilencedVulnerabilities.Count -ge 0)
         {
             # some vulnerabilities are needlessly silenced
             Write-LogMessage "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
-            $SilencedVulnerabilitiesShouldBeRemoved = $true
+            $script:SilencedVulnerabilitiesShouldBeRemoved = $true
         }
         return
     }
@@ -170,24 +170,26 @@ $ExitCode = 0
 If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
 {
     Write-LogMessage "npm audit warnings have been bypassed by request"
-    $ExitCode = 0
 }
 
 If ($Vulnerabilities.Count -gt 0)
 {
     Write-LogMessage "Vulnerabilities found"
-    $ExitCode -2 ## some vulnerabilities exist, either resolve them or ignore them
+    $ExitCode = -2 ## some vulnerabilities exist, either resolve them or ignore them
 }
 
-If (($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0) -and $AllowRedundantSilencedVulnerabilities -ne $true)
+If ($ExitCode -eq 0 -and ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0) -and $AllowRedundantSilencedVulnerabilities -ne $true)
 {
     Write-LogMessage "Silenced vulnerabilities should be removed"
-    $ExitCode -1 ## silenced vulnerabilities should be removed, fail the build
+    $ExitCode = -1 ## silenced vulnerabilities should be removed, fail the build
 }
 
-Write-LogMessage "No vulnerabilities ($($Ignored.Count) ignored)"
-$Status = " :white_check_mark: Success"
-If ($ExitCode -ne 0)
+if ($ExitCode -eq 0)
+{
+    Write-LogMessage "No vulnerabilities ($($Ignored.Count) ignored)"
+    $Status = " :white_check_mark: Success"
+}
+else
 {
     Write-LogMessage "Exit code: $($ExitCode)"
     $Status = " :x: Fail"
