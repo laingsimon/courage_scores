@@ -33,6 +33,11 @@ public class CosmosDatabaseFactory : ICosmosDatabaseFactory
         var account = _configuration["CosmosDb_Endpoint"];
         var key = _configuration["CosmosDb_Key"];
 
+        if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(key))
+        {
+            throw new InvalidOperationException("Environment or configuration variables are not set. Set `CosmosDb_Endpoint` and `CosmosDb_Key` in the environment before starting the process");
+        }
+
         var serialiserSettings = new JsonSerializerSettings
         {
             Converters =
