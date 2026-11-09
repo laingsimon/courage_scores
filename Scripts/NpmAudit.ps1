@@ -177,7 +177,7 @@ if ($ExitCode -eq 0)
     $script:Status = " :white_check_mark: Success"
 }
 
-if ($ExitCode -le 0)
+if ($ExitCode -lt 0)
 {
     Write-LogMessage "Exit code: $($ExitCode)"
     $script:Status = " :x: Fail"
