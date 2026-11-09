@@ -69,7 +69,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         }
 
         Write-LogMessage "Found vulnerability $($Vulnerability) ($($Description))"
-        Write-LogMessage "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
+        Write-LogMessage "Add '$($Vulnerability) = $($Description)' to $($SilencedVulnerabilitiesPath) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
