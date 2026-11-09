@@ -7,7 +7,7 @@ Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
 $SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
-$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
+$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | Where-Object { $_ -ne "" } | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
 $SilencedThatShouldBeRemoved = @{}
 $Ignored = @{}
