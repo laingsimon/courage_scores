@@ -1,6 +1,5 @@
 param([string] $Project, [switch] $Install, [switch] $AllowRedundantSilencedVulnerabilities)
 $AuditCommentHeading = "npm audit report - $($Project)"
-$OutdatedCommentHeading = "npm outdated report - $($Project)"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit - $($Project)"
 $GitHubMarkdownCodeBlock="``````"
 
@@ -8,7 +7,7 @@ Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
 $SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
-$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | ConvertFrom-StringData
+$SilencedVulnerabilities = (get-content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)") | Where-Object { $_ -ne "" } | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
 $SilencedThatShouldBeRemoved = @{}
 $Ignored = @{}
@@ -70,7 +69,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         }
 
         Write-LogMessage "Found vulnerability $($Vulnerability) ($($Description))"
-        Write-LogMessage "Add '$($Vulnerability) = some explanation' to $($SilencedVulnerabilitiesPath) to ignore it"
+        Write-LogMessage "Add '$($Vulnerability) = $($Description)' to $($SilencedVulnerabilitiesPath) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
@@ -122,16 +121,15 @@ if ($GitHubEvent -ne "pull_request")
     }
     else
     {
-        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), GitHubEvent=$($GitHubEvent)"
+        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), env:GITHUB_EVENT_NAME=$($GitHubEvent)"
     }
 }
 
 if ($GitHubEvent -eq "pull_request")
 {
     $CommentsUrl = "https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-    $AuditComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $AuditCommentHeading)
     $BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $BypassNpmAuditViaCommentCommentContent -ExactMatch)
-    $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $OutdatedCommentHeading)
+    $OutdatedComments = [array] (Get-PullRequestComments -GitHubToken $Token -Repo $Repo -CommentsUrl $CommentsUrl -CommentHeading $AuditCommentHeading)
 }
 
 if ($Install)
@@ -150,19 +148,6 @@ If ($Vulnerabilities.Count -gt 0)
     {
         $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
     }
-
-    if ($GitHubEvent -eq "pull_request")
-    {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $AuditComments -Markdown "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
-    }
-    else
-    {
-        Write-Host "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($FormattedVulnerabilities)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
-    }
-}
-elseif ($GitHubEvent -eq "pull_request")
-{
-    Remove-ExistingComments -GitHubToken $Token -Comments $AuditComments
 }
 
 $ExitCode = 0
@@ -170,37 +155,45 @@ $ExitCode = 0
 If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
 {
     Write-LogMessage "npm audit warnings have been bypassed by request"
+    $script:Status = ":see_no_evil: Bypassed"
+    $script:ExitCode = 1 ## vulnerabilities bypassed
 }
 
-If ($Vulnerabilities.Count -gt 0)
+If ($ExitCode -eq 0 -and $Vulnerabilities.Count -gt 0)
 {
     Write-LogMessage "Vulnerabilities found"
-    $ExitCode = -2 ## some vulnerabilities exist, either resolve them or ignore them
+    $script:ExitCode = -2 ## some vulnerabilities exist, either resolve them or ignore them
 }
 
 If ($ExitCode -eq 0 -and ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or $SilencedThatShouldBeRemoved.Count -gt 0) -and $AllowRedundantSilencedVulnerabilities -ne $true)
 {
     Write-LogMessage "Silenced vulnerabilities should be removed"
-    $ExitCode = -1 ## silenced vulnerabilities should be removed, fail the build
+    $script:ExitCode = -1 ## silenced vulnerabilities should be removed, fail the build
 }
 
 if ($ExitCode -eq 0)
 {
     Write-LogMessage "No vulnerabilities ($($Ignored.Count) ignored)"
-    $Status = " :white_check_mark: Success"
+    $script:Status = " :white_check_mark: Success"
 }
-else
+
+if ($ExitCode -lt 0)
 {
     Write-LogMessage "Exit code: $($ExitCode)"
-    $Status = " :x: Fail"
+    $script:Status = " :x: Fail"
 }
-$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$Status - $OutdatedCommentHeading"""
+$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -AuditCommentHeading ""$Status - $AuditCommentHeading"""
 
 If ($OutdatedNpmModulesComment -ne "")
 {
     if ($GitHubEvent -eq "pull_request")
     {
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown "$($OutdatedNpmModulesComment)`n$($GitHubMarkdownCodeBlock)$($LogMessages)`n$($GitHubMarkdownCodeBlock)"
+        $BypassPrompt = ""
+        if ($ExitCode -le 0)
+        {
+            $BypassPrompt = "`nAdd comment with text **$($BypassNpmAuditViaCommentCommentContent)** to bypass these warnings"
+        }
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown "$($OutdatedNpmModulesComment)`n$($GitHubMarkdownCodeBlock)$($LogMessages)`n$($GitHubMarkdownCodeBlock)$($BypassPrompt)"
     }
     else
     {
@@ -213,4 +206,7 @@ elseif ($GitHubEvent -eq "pull_request")
 }
 
 Write-Message $VulnerabilitiesMessage
-Exit $ExitCode
+if ($ExitCode -le 0)
+{
+    Exit $ExitCode
+}
