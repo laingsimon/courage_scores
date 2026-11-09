@@ -114,73 +114,80 @@ export function MultiPlayerSelection({
     try {
         return (
             <div>
-                <ol className="no-list-indent mb-0">
-                    {(players || []).map(
-                        (p: NotablePlayerDto, playerIndex: number) => {
-                            return (
-                                <li key={playerIndex}>
-                                    {disabled ? (
-                                        renderLinkToPlayer(p)
-                                    ) : (
-                                        <button
-                                            disabled={disabled || readOnly}
-                                            className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
-                                            onClick={async () =>
-                                                onRemovePlayer
-                                                    ? await onRemovePlayer(
-                                                          p.id,
-                                                          playerIndex - 1,
-                                                      )
-                                                    : null
-                                            }>
-                                            {playerName(p)}{' '}
-                                            {disabled ? '' : '🗑'}
-                                        </button>
-                                    )}
-                                </li>
-                            );
-                        },
-                    )}
-                    {disabled || readOnly ? null : (
-                        <li>
-                            {showScore ? (
-                                <input
-                                    disabled={disabled}
-                                    readOnly={readOnly}
-                                    onChange={(elem) =>
-                                        setScore(elem.target.value)
-                                    }
-                                    value={score}
-                                    className={`margin-right tri-character-input align-middle${scoreClassName || ''}`}
-                                    type="number"
-                                    min="100"
-                                    max="120"
-                                />
-                            ) : null}
-                            {any(allPlayers) ? (
-                                <PlayerSelection
-                                    disabled={disabled}
-                                    readOnly={readOnly}
-                                    players={allPlayers}
-                                    selected={player!}
-                                    onChange={async (_, p: ISelectablePlayer) =>
-                                        setPlayer(p)
-                                    }
-                                    className={dropdownClassName}
-                                    placeholder={placeholder}
-                                />
-                            ) : null}
-                            {any(allPlayers) ? (
-                                <button
-                                    disabled={disabled || readOnly}
-                                    onClick={addPlayer}
-                                    className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>
-                                    ➕
-                                </button>
-                            ) : null}
-                        </li>
-                    )}
-                </ol>
+                {any(allPlayers) ? (
+                    <ol className="no-list-indent mb-0">
+                        {(players || []).map(
+                            (p: NotablePlayerDto, playerIndex: number) => {
+                                return (
+                                    <li key={playerIndex}>
+                                        {disabled ? (
+                                            renderLinkToPlayer(p)
+                                        ) : (
+                                            <button
+                                                disabled={disabled || readOnly}
+                                                className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
+                                                onClick={async () =>
+                                                    onRemovePlayer
+                                                        ? await onRemovePlayer(
+                                                              p.id,
+                                                              playerIndex - 1,
+                                                          )
+                                                        : null
+                                                }>
+                                                {playerName(p)}{' '}
+                                                {disabled ? '' : '🗑'}
+                                            </button>
+                                        )}
+                                    </li>
+                                );
+                            },
+                        )}
+                        {disabled || readOnly ? null : (
+                            <li>
+                                {showScore ? (
+                                    <input
+                                        disabled={disabled}
+                                        readOnly={readOnly}
+                                        onChange={(elem) =>
+                                            setScore(elem.target.value)
+                                        }
+                                        value={score}
+                                        className={`margin-right tri-character-input align-middle${scoreClassName || ''}`}
+                                        type="number"
+                                        min="100"
+                                        max="120"
+                                    />
+                                ) : null}
+                                {any(allPlayers) ? (
+                                    <PlayerSelection
+                                        disabled={disabled}
+                                        readOnly={readOnly}
+                                        players={allPlayers}
+                                        selected={player!}
+                                        onChange={async (
+                                            _,
+                                            p: ISelectablePlayer,
+                                        ) => setPlayer(p)}
+                                        className={dropdownClassName}
+                                        placeholder={placeholder}
+                                    />
+                                ) : null}
+                                {any(allPlayers) ? (
+                                    <button
+                                        disabled={disabled || readOnly}
+                                        onClick={addPlayer}
+                                        className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>
+                                        ➕
+                                    </button>
+                                ) : null}
+                            </li>
+                        )}
+                    </ol>
+                ) : (
+                    <div className="alert alert-warning mb-0">
+                        No players are available
+                    </div>
+                )}
             </div>
         );
     } catch (e) {
