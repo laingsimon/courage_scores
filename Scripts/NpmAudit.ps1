@@ -121,7 +121,7 @@ if ($GitHubEvent -ne "pull_request")
     }
     else
     {
-        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), GitHubEvent=$($GitHubEvent)"
+        Write-Host "Not a push to main, unable to add npm-audit comments - env:GITHUB_REF_NAME=$($env:GITHUB_REF_NAME), env:GITHUB_EVENT_NAME=$($GitHubEvent)"
     }
 }
 
