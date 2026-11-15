@@ -64,12 +64,12 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false)
             { 
                 $Ignored.Add($Vulnerability, $true)
-                Write-LogMessage "Ignoring vulnerability ``$($Vulnerability)`` ($($SilencedVulnerabilities[$Vulnerability]))"
+                Write-LogMessage "Ignoring vulnerability [$($Vulnerability)](https://github.com/advisories/$($Vulnerability)) ($($SilencedVulnerabilities[$Vulnerability]))"
             }
             return
         }
 
-        Write-LogMessage "Found vulnerability $($Vulnerability) ($($Description))"
+        Write-LogMessage "Found vulnerability [$($Description)](https://github.com/advisories/$($Vulnerability))"
         Write-LogMessage "Add ``$($Vulnerability) = $($Description)`` to [silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl)) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
@@ -82,7 +82,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
             {
                 # can remove this vulnerability
-                Write-LogMessage "``$($Vulnerability)`` should be removed from the [silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl))"
+                Write-LogMessage "[$($Vulnerability)](https://github.com/advisories/$($Vulnerability)) should be removed from the [silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl))"
                 $SilencedThatShouldBeRemoved.Add($Vulnerability, $true)
             }
         }
