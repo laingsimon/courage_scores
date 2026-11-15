@@ -5,39 +5,46 @@ import { ensureDivisionExists } from '../Helpers/divisions.ts';
 import { waitForLoadingToFinish } from '../Helpers/app.ts';
 
 test.describe('proof of concept', () => {
+    const anotherUser = {
+        name: 'Simon',
+        givenName: 'Simon',
+        emailAddress: 'simon@sandbox.com',
+    };
+    const expectedLeagueTabs = [
+        'Teams',
+        'Fixtures',
+        'Players',
+        'Reports',
+        'Health',
+    ];
+
     test('can login', async ({ page }) => {
         await page.goto('/');
-        await ensureLoggedIn(page);
-        await ensureLoggedIn(page, {
-            name: 'Simon',
-            givenName: 'Simon',
-            emailAddress: 'simon@sandbox.com',
-        }); // another user
+        await ensureLoggedIn(page, anotherUser);
 
-        await expect(page.getByText('Logout (Simon)')).toBeVisible();
+        await expect(
+            page.getByText(`Logout (${anotherUser.givenName})`),
+        ).toBeVisible();
     });
 
     test('can add a season', async ({ page }) => {
+        const rng = (Math.random() * 10000).toFixed(0);
+        const divisionName = `Division ${rng}`;
+        const seasonName = `Season ${rng}`;
+
         await page.goto('/');
         await ensureLoggedIn(page);
         await page.goto('/teams');
 
-        await ensureDivisionExists(page, 'Division One');
-        await ensureSeasonExists(page, 'Summer Season', ['Division One']);
+        await ensureDivisionExists(page, divisionName);
+        await ensureSeasonExists(page, seasonName, [divisionName]);
 
-        await selectSeason(page, 'Summer Season');
+        await selectSeason(page, seasonName);
         await waitForLoadingToFinish(page);
-        const expectedTabs = [
-            'Teams',
-            'Fixtures',
-            'Players',
-            'Reports',
-            'Health',
-        ];
         const tabsLocator = page.locator('ul.nav-tabs li');
-        await expect(tabsLocator).toHaveCount(expectedTabs.length);
+        await expect(tabsLocator).toHaveCount(expectedLeagueTabs.length);
         let index = 0;
-        for (const tab of expectedTabs) {
+        for (const tab of expectedLeagueTabs) {
             await expect(tabsLocator.nth(index++)).toHaveText(tab);
         }
     });
