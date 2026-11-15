@@ -7,6 +7,7 @@ Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 Import-Module -Name "$PSScriptRoot/GitHubFunctions.psm1"
 
 $SilencedVulnerabilitiesPath = "silenced-vulnerabilities.txt"
+$SilencedVulnerabilitiesUrl = "https://github.com/laingsimon/courage_scores/blob/main/$($SilencedVulnerabilitiesPath)"
 $SilencedVulnerabilities = (Get-Content -Path "$PSScriptRoot\..\$($SilencedVulnerabilitiesPath)" -Raw) | Where-Object { $_ -ne "" } | ConvertFrom-StringData
 $SilencedVulnerabilitiesShouldBeRemoved = $false
 $SilencedThatShouldBeRemoved = @{}
@@ -20,8 +21,8 @@ Function Write-Message($Message)
 
 Function Write-LogMessage($Message)
 {
-    Write-Message $Message
-    $script:LogMessages = "$($script:LogMessages)`n$($Message)"
+    Write-Message " - $($Message)"
+    $script:LogMessages = "$($script:LogMessages)`n - $($Message)"
 }
 
 Function Extract-Vulnerabilities($NpmAuditResult)
@@ -32,7 +33,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
         if ($SilencedVulnerabilities -ne $null -and $SilencedVulnerabilities.Count -ge 0)
         {
             # some vulnerabilities are needlessly silenced
-            Write-LogMessage "All silenced vulnerabilies ($($SilencedVulnerabilitiesPath)) should be removed: $($SilencedVulnerabilities.Keys)"
+            Write-LogMessage "All vulnerabilies should be removed from the (silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl))): $($SilencedVulnerabilities.Keys)"
             $script:SilencedVulnerabilitiesShouldBeRemoved = $true
         }
         return
@@ -63,13 +64,13 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false)
             { 
                 $Ignored.Add($Vulnerability, $true)
-                Write-LogMessage "Ignoring vulnerability $($Vulnerability) ($($SilencedVulnerabilities[$Vulnerability]))"
+                Write-LogMessage "Ignoring vulnerability ``$($Vulnerability)`` ($($SilencedVulnerabilities[$Vulnerability]))"
             }
             return
         }
 
         Write-LogMessage "Found vulnerability $($Vulnerability) ($($Description))"
-        Write-LogMessage "Add '$($Vulnerability) = $($Description)' to $($SilencedVulnerabilitiesPath) to ignore it"
+        Write-LogMessage "Add ``$($Vulnerability) = $($Description)`` to [silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl)) to ignore it"
         $Vulnerabilities.Add($Vulnerability, $Description)
     }
 
@@ -81,7 +82,7 @@ Function Extract-Vulnerabilities($NpmAuditResult)
             if ($Ignored.ContainsKey($Vulnerability) -eq $false -and $Vulnerabilities.ContainsKey($Vulnerability) -eq $false)
             {
                 # can remove this vulnerability
-                Write-LogMessage "$($Vulnerability) should be removed from the silenced-vulnerabilities list ($($SilencedVulnerabilitiesPath))"
+                Write-LogMessage "``$($Vulnerability)`` should be removed from the [silenced-vulnerabilities list]($($SilencedVulnerabilitiesUrl))"
                 $SilencedThatShouldBeRemoved.Add($Vulnerability, $true)
             }
         }
@@ -143,10 +144,10 @@ $FormattedVulnerabilities = $Vulnerabilities.Keys | Select-Object @{ label='url'
 
 If ($Vulnerabilities.Count -gt 0)
 {
-    $BypassInstruction="Add comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
+    $BypassInstruction="Add comment to this PR with the content ``$($BypassNpmAuditViaCommentCommentContent)`` to bypass these vulnerabilities when the workflow runs next"
     if ($BypassNpmAuditViaCommentComments.Length -gt 0)
     {
-        $BypassInstruction="A comment exists with the wording **$($BypassNpmAuditViaCommentCommentContent)**; warnings are ignored for this PR"
+        $BypassInstruction="A comment exists with the wording ``$($BypassNpmAuditViaCommentCommentContent)``; warnings are ignored for this PR"
     }
 }
 
@@ -173,7 +174,7 @@ If ($ExitCode -eq 0 -and ($SilencedVulnerabilitiesShouldBeRemoved -eq $true -or 
 
 if ($ExitCode -eq 0)
 {
-    Write-LogMessage "No vulnerabilities ($($Ignored.Count) ignored)"
+    Write-LogMessage "No vulnerabilities - **$($Ignored.Count) ignored**"
     $script:Status = " :white_check_mark: Success"
 }
 
@@ -191,9 +192,9 @@ If ($OutdatedNpmModulesComment -ne "")
         $BypassPrompt = ""
         if ($ExitCode -le 0)
         {
-            $BypassPrompt = "`nAdd comment with text **$($BypassNpmAuditViaCommentCommentContent)** to bypass these warnings"
+            $BypassPrompt = " - Add comment with text ``$($BypassNpmAuditViaCommentCommentContent)`` to bypass these warnings"
         }
-        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown "$($OutdatedNpmModulesComment)`n$($GitHubMarkdownCodeBlock)$($LogMessages)`n$($GitHubMarkdownCodeBlock)$($BypassPrompt)"
+        Update-PullRequestComment -GitHubToken $Token -Repo $Repo -PullRequestNumber $PullRequestNumber -Comments $OutdatedComments -Markdown "$($OutdatedNpmModulesComment)`n$($LogMessages)`n$($BypassPrompt)"
     }
     else
     {
