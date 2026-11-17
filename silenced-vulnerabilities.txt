@@ -1,2 +1,3 @@
 GHSA-g3hv-75wg-m249 = minimatch has potential denial of service via globparts amplification
 GHSA-3g3m-2fjr-6pw4 = Glob: AbortSignal cancellation bypass allows post-timeout filesystem traversal
+GHSA-fc5q-39xc-vjpf = picomatch vulnerable to ReDoS through single-branch repeated extglobs
