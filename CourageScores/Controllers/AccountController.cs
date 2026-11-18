@@ -14,6 +14,11 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class AccountController : Controller
 {
+    private static readonly HashSet<string> ValidProviders =
+    [
+        GoogleDefaults.AuthenticationScheme,
+    ];
+
     private readonly IUserService _userService;
     private readonly IServiceAccountSessionService _serviceAccountSessionService;
 
@@ -34,7 +39,7 @@ public class AccountController : Controller
         {
             RedirectUri = redirectUrl,
         };
-        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        return Challenge(properties, ValidProviders.ToArray());
     }
 
     [ExcludeFromTypeScript]
