@@ -15,9 +15,11 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class AccountController : Controller
 {
+    private static readonly string DefaultAuthProvider = GoogleDefaults.AuthenticationScheme;
+
     private static readonly HashSet<string> ValidProviders =
     [
-        GoogleDefaults.AuthenticationScheme,
+        DefaultAuthProvider, // google
         FacebookDefaults.AuthenticationScheme,
     ];
 
@@ -31,8 +33,8 @@ public class AccountController : Controller
     }
 
     [ExcludeFromTypeScript]
-    [HttpGet("/api/Account/Login")]
-    public IActionResult Login(string redirectUrl = "/")
+    [HttpGet("/api/Account/Login/{authScheme?}")]
+    public IActionResult Login(string redirectUrl = "/", string? authScheme = null)
     {
 #if DEBUG
         redirectUrl = $"{Bootstrap.LocalhostAddress}{redirectUrl}";
@@ -41,7 +43,11 @@ public class AccountController : Controller
         {
             RedirectUri = redirectUrl,
         };
-        return Challenge(properties, ValidProviders.ToArray());
+        var validAuthScheme = authScheme == null
+            ? null
+            : ValidProviders.Intersect([authScheme]).FirstOrDefault();
+
+        return Challenge(properties, validAuthScheme ?? DefaultAuthProvider);
     }
 
     [ExcludeFromTypeScript]

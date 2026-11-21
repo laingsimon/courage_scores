@@ -55,7 +55,7 @@ describe('Login', () => {
             );
             expect(google.text()).toContain('Google');
             expect(google.element<HTMLAnchorElement>().href).toContain(
-                '/api/Account/Login/?redirectUrl=%2F',
+                '/api/Account/Login/Google/?redirectUrl=%2F',
             );
             expect(context.text()).not.toContain(
                 '📺 New service account session',
@@ -80,7 +80,7 @@ describe('Login', () => {
             );
             expect(google.text()).toContain('Google');
             expect(google.element<HTMLAnchorElement>().href).toContain(
-                '/api/Account/Login/?redirectUrl=%2F',
+                '/api/Account/Login/Google/?redirectUrl=%2F',
             );
             expect(context.text()).not.toContain(
                 '📺 New service account session',
@@ -105,10 +105,10 @@ describe('Login', () => {
             );
             expect(google.text()).toContain('Google');
             expect(google.element<HTMLAnchorElement>().href).toContain(
-                '/api/Account/Login/?redirectUrl=%2F',
+                '/api/Account/Login/Google/?redirectUrl=%2F',
             );
 
-            const serviceAccount = context.required('a:nth-child(2)');
+            const serviceAccount = context.required('a:nth-child(3)');
             expect(serviceAccount.text()).toContain(
                 '📺 New service account session',
             );
@@ -135,10 +135,10 @@ describe('Login', () => {
             );
             expect(google.text()).toContain('Google');
             expect(google.element<HTMLAnchorElement>().href).toContain(
-                '/api/Account/Login/?redirectUrl=somewhere',
+                '/api/Account/Login/Google/?redirectUrl=somewhere',
             );
 
-            const serviceAccount = context.required('a:nth-child(2)');
+            const serviceAccount = context.required('a:nth-child(3)');
             expect(serviceAccount.text()).toContain(
                 '📺 New service account session',
             );
