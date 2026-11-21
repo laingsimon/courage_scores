@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,14 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class AccountController : Controller
 {
+    private static readonly string DefaultAuthProvider = GoogleDefaults.AuthenticationScheme;
+
+    private static readonly HashSet<string> ValidProviders =
+    [
+        DefaultAuthProvider, // google
+        FacebookDefaults.AuthenticationScheme,
+    ];
+
     private readonly IUserService _userService;
     private readonly IServiceAccountSessionService _serviceAccountSessionService;
 
@@ -24,8 +33,8 @@ public class AccountController : Controller
     }
 
     [ExcludeFromTypeScript]
-    [HttpGet("/api/Account/Login")]
-    public IActionResult Login(string redirectUrl = "/")
+    [HttpGet("/api/Account/Login/{authScheme?}")]
+    public IActionResult Login(string redirectUrl = "/", string? authScheme = null)
     {
 #if DEBUG
         redirectUrl = $"{Bootstrap.LocalhostAddress}{redirectUrl}";
@@ -34,7 +43,11 @@ public class AccountController : Controller
         {
             RedirectUri = redirectUrl,
         };
-        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        var validAuthScheme = authScheme == null
+            ? null
+            : ValidProviders.Intersect([authScheme]).FirstOrDefault();
+
+        return Challenge(properties, validAuthScheme ?? DefaultAuthProvider);
     }
 
     [ExcludeFromTypeScript]

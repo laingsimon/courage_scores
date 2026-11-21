@@ -49,6 +49,8 @@ export default defineConfig({
         env: {
             GoogleAuth_ClientId: 'anything',
             GoogleAuth_Secret: 'anything',
+            FacebookAuth_ClientId: 'anything',
+            FacebookAuth_Secret: 'anything',
         },
         cwd: '../CourageScores.Sandbox',
         url: 'https://localhost:7247',
