@@ -38,6 +38,11 @@ public class Bootstrap
             {
                 options.ClientId = configuration["GoogleAuth_ClientId"]!;
                 options.ClientSecret = configuration["GoogleAuth_Secret"]!;
+            })
+            .AddFacebook(options =>
+            {
+                options.ClientId = configuration["FacebookAuth_ClientId"]!;
+                options.ClientSecret = configuration["FacebookAuth_Secret"]!;
             });
 
         // Add services to the container.
