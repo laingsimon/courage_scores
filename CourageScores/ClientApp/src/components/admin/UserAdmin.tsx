@@ -15,9 +15,10 @@ import { UserDto } from '../../interfaces/models/dtos/Identity/UserDto.ts';
 import { UpdateAccessDto } from '../../interfaces/models/dtos/Identity/UpdateAccessDto.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
 import { IAccessLevels } from '../../helpers/conditions.ts';
-import { groupBy } from '../../helpers/collections.ts';
+import { all, groupBy } from '../../helpers/collections.ts';
 import { AccessLevelDto } from '../../interfaces/models/dtos/Identity/AccessLevelDto';
 import { UserAccessOption } from './UserAccessOption.tsx';
+import { IUserAccessDto } from '../../interfaces/models/dtos/Identity/IUserAccessDto';
 
 interface IAccessMapping {
     option: AccessOption;
@@ -25,6 +26,65 @@ interface IAccessMapping {
     name: string;
     description?: string;
 }
+
+interface IRole extends IUserAccessDto {
+    name: string;
+}
+
+const roleMappings: IRole[] = [
+    {
+        name: 'None',
+        accessLevels: {},
+    },
+    {
+        name: 'League admin',
+        accessLevels: {
+            ManageDivisions: {},
+            ManageGames: {},
+            ManageNotes: {},
+            ManagePlayers: {},
+            ManageScores: {},
+            ManageSeasons: {},
+            ManageTeams: {},
+            RunReports: {},
+            ManageTournaments: {},
+        },
+    },
+    {
+        name: 'System admin',
+        accessLevels: {
+            ManageAccess: {},
+            ManageDivisions: {},
+            ManageGames: {},
+            ManageNotes: {},
+            ManagePlayers: {},
+            ManageScores: {},
+            ManageSeasons: {},
+            ManageTeams: {},
+            RunReports: {},
+            ExportData: {},
+            ImportData: {},
+            InputResults: {},
+            ViewExceptions: {},
+            RecordScoresAsYouGo: {},
+            ManageTournaments: {},
+            RunHealthChecks: {},
+            ManageSeasonTemplates: {},
+            ShowDebugOptions: {},
+            ManageSockets: {},
+            UseWebSockets: {},
+            EnterTournamentResults: {},
+            UploadPhotos: {},
+            ViewAnyPhoto: {},
+            DeleteAnyPhoto: {},
+            BulkDeleteLeagueFixtures: {},
+            ManageFeatures: {},
+            AnalyseMatches: {},
+            RunDataQueries: {},
+            LoginServiceAccounts: {},
+        },
+    },
+];
 
 const accessMappings: IAccessMapping[] = [
     {
@@ -299,6 +359,59 @@ export function UserAdmin() {
         };
     }
 
+    async function changeRole(value: string) {
+        const role = roleMappings.find((r) => r.name === value);
+        if (!role) {
+            return;
+        }
+
+        const currentAccount: UserDto = Object.assign({}, userAccount);
+        currentAccount.accessLevels = role!.accessLevels;
+        setUserAccount(currentAccount);
+    }
+
+    function accessEqualsRole(role: IRole): boolean {
+        function byName(a: string, b: string): number {
+            return a.localeCompare(b);
+        }
+
+        function equatableRoles(accessLevels: {
+            [key: string]: AccessLevelDto;
+        }): string {
+            return Object.keys(accessLevels).sort(byName).join(',');
+        }
+
+        function equatableLevel(level?: AccessLevelDto): string {
+            if (!level) {
+                return '';
+            }
+
+            return JSON.stringify({
+                divisionIds: (level.divisionIds ?? []).sort(byName),
+                seasonIds: (level.seasonIds ?? []).sort(byName),
+                teamIds: (level.teamIds ?? []).sort(byName),
+            });
+        }
+
+        if (
+            equatableRoles(userAccount?.accessLevels ?? {}) !==
+            equatableRoles(role.accessLevels)
+        ) {
+            return false;
+        }
+
+        return all(Object.keys(role.accessLevels), (option: string) => {
+            const roleLevel = equatableLevel(role.accessLevels[option]);
+            const userLevel = equatableLevel(userAccount?.accessLevels[option]);
+
+            return !!userLevel && roleLevel === userLevel;
+        });
+    }
+
+    function getCurrentRole() {
+        return roleMappings.find(accessEqualsRole)?.name;
+    }
+
     return (
         <div className="content-background p-3">
             <h3>Manage access</h3>
@@ -339,7 +452,18 @@ export function UserAdmin() {
             <ul>
                 <li>⚠️ Man of the match data can be seen for any team</li>
             </ul>
-            <h6>Access</h6>
+            <h6>
+                Access | Role:
+                <BootstrapDropdown
+                    options={roleMappings.map((r) => ({
+                        value: r.name,
+                        text: r.name,
+                    }))}
+                    onChange={changeRole}
+                    value={getCurrentRole()}
+                    className="margin-left"
+                />
+            </h6>
             <div className="d-flex flex-wrap">
                 {groupBy(accessMappings, 'section')
                     .sort((a, b) => a.key.localeCompare(b.key))
