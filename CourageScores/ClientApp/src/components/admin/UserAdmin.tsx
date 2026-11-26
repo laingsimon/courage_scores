@@ -122,6 +122,24 @@ const roleMappings: IRole[] = [
             LoginServiceAccounts: {},
         },
     },
+    {
+        name: 'Superleague tablet',
+        accessLevels: {
+            RecordScoresAsYouGo: {},
+            ShowDebugOptions: {},
+            UseWebSockets: {},
+            EnterTournamentResults: {},
+            KioskMode: {},
+        },
+    },
+    {
+        name: 'Superleague TV',
+        accessLevels: {
+            ShowDebugOptions: {},
+            UseWebSockets: {},
+            KioskMode: {},
+        },
+    },
 ];
 
 const accessMappings: IAccessMapping[] = [
