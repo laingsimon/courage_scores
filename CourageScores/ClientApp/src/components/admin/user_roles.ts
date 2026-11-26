@@ -79,14 +79,14 @@ const systemAdminAccessLevels: IAccessLevels = {
     RunDataQueries: {},
     LoginServiceAccounts: {},
 };
-const superleagueTabletAccessLevels: IAccessLevels = {
-    RecordScoresAsYouGo: {},
-    ShowDebugOptions: {},
+export const superleagueTabletAccessLevels: IAccessLevels = {
     UseWebSockets: {},
+    ShowDebugOptions: {},
     EnterTournamentResults: {},
+    RecordScoresAsYouGo: {},
     KioskMode: {},
 };
-const superleagueTvAccessLevels: IAccessLevels = {
+export const superleagueTvAccessLevels: IAccessLevels = {
     ShowDebugOptions: {},
     UseWebSockets: {},
     KioskMode: {},
