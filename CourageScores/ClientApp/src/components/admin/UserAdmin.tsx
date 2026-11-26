@@ -18,7 +18,7 @@ import { IAccessLevels } from '../../helpers/conditions.ts';
 import { all, groupBy } from '../../helpers/collections.ts';
 import { AccessLevelDto } from '../../interfaces/models/dtos/Identity/AccessLevelDto';
 import { UserAccessOption } from './UserAccessOption.tsx';
-import { IUserAccessDto } from '../../interfaces/models/dtos/Identity/IUserAccessDto';
+import { IRole, roleMappings } from './user_roles.ts';
 
 interface IAccessMapping {
     option: AccessOption;
@@ -26,121 +26,6 @@ interface IAccessMapping {
     name: string;
     description?: string;
 }
-
-interface IRole extends IUserAccessDto {
-    name: string;
-}
-
-const roleMappings: IRole[] = [
-    {
-        name: 'None',
-        accessLevels: {},
-    },
-    {
-        name: 'League admin',
-        accessLevels: {
-            ManageAccess: {},
-            ManageDivisions: {},
-            ManageGames: {},
-            ManageNotes: {},
-            ManagePlayers: {},
-            ManageScores: {},
-            ManageSeasons: {},
-            ManageTeams: {},
-            RunReports: {},
-            ExportData: {},
-            InputResults: {},
-            RecordScoresAsYouGo: {},
-            ManageTournaments: {},
-            RunHealthChecks: {},
-            ManageSeasonTemplates: {},
-            UploadPhotos: {},
-            ViewAnyPhoto: {},
-            DeleteAnyPhoto: {},
-            BulkDeleteLeagueFixtures: {},
-        },
-    },
-    {
-        name: 'League & Superleague admin',
-        accessLevels: {
-            ManageAccess: {},
-            ManageDivisions: {},
-            ManageGames: {},
-            ManageNotes: {},
-            ManagePlayers: {},
-            ManageScores: {},
-            ManageSeasons: {},
-            ManageTeams: {},
-            RunReports: {},
-            ExportData: {},
-            InputResults: {},
-            RecordScoresAsYouGo: {},
-            ManageTournaments: {},
-            RunHealthChecks: {},
-            ManageSeasonTemplates: {},
-            UseWebSockets: {},
-            EnterTournamentResults: {},
-            UploadPhotos: {},
-            ViewAnyPhoto: {},
-            DeleteAnyPhoto: {},
-            BulkDeleteLeagueFixtures: {},
-            AnalyseMatches: {},
-            LoginServiceAccounts: {},
-        },
-    },
-    {
-        name: 'System admin',
-        accessLevels: {
-            ManageAccess: {},
-            ManageDivisions: {},
-            ManageGames: {},
-            ManageNotes: {},
-            ManagePlayers: {},
-            ManageScores: {},
-            ManageSeasons: {},
-            ManageTeams: {},
-            RunReports: {},
-            ExportData: {},
-            ImportData: {},
-            InputResults: {},
-            ViewExceptions: {},
-            RecordScoresAsYouGo: {},
-            ManageTournaments: {},
-            RunHealthChecks: {},
-            ManageSeasonTemplates: {},
-            ShowDebugOptions: {},
-            ManageSockets: {},
-            UseWebSockets: {},
-            EnterTournamentResults: {},
-            UploadPhotos: {},
-            ViewAnyPhoto: {},
-            DeleteAnyPhoto: {},
-            BulkDeleteLeagueFixtures: {},
-            ManageFeatures: {},
-            AnalyseMatches: {},
-            RunDataQueries: {},
-            LoginServiceAccounts: {},
-        },
-    },
-    {
-        name: 'Superleague tablet',
-        accessLevels: {
-            RecordScoresAsYouGo: {},
-            ShowDebugOptions: {},
-            UseWebSockets: {},
-            EnterTournamentResults: {},
-            KioskMode: {},
-        },
-    },
-    {
-        name: 'Superleague TV',
-        accessLevels: {
-            ShowDebugOptions: {},
-            UseWebSockets: {},
-            KioskMode: {},
-        },
-    },
-];
 
 const accessMappings: IAccessMapping[] = [
     {
