@@ -147,9 +147,7 @@ export function UserAdmin() {
             return a.localeCompare(b);
         }
 
-        function equatableRoles(accessLevels: {
-            [key: string]: AccessLevelDto;
-        }): string {
+        function equatableRoles(accessLevels: IAccessLevels): string {
             return Object.keys(accessLevels).sort(byName).join(',');
         }
 

@@ -1,4 +1,9 @@
 import { IUserAccessDto } from '../../interfaces/models/dtos/Identity/IUserAccessDto';
+import { AccessLevelDto } from '../../interfaces/models/dtos/Identity/AccessLevelDto';
+
+export interface IAccessLevels {
+    [key: string]: AccessLevelDto;
+}
 
 export interface IRole extends IUserAccessDto {
     name: string;
