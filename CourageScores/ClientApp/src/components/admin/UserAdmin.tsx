@@ -1,6 +1,7 @@
 // noinspection SqlDialectInspection,SqlNoDataSourceInspection
 
 import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router';
 import { ErrorDisplay } from '../common/ErrorDisplay.tsx';
 import {
     BootstrapDropdown,
@@ -29,13 +30,29 @@ export function UserAdmin() {
     const [userAccount, setUserAccount] = useState<UserDto | undefined>(
         undefined,
     );
-    const [emailAddress, setEmailAddress] = useState<string>(
-        account?.emailAddress || '',
-    );
     const [loading, setLoading] = useState<boolean>(true);
     const [saveError, setSaveError] =
         useState<IClientActionResultDto<UserDto> | null>(null);
     const [showEmailAddress, setShowEmailAddress] = useState<boolean>(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const emailAddress = getEmailAddress(new URLSearchParams(location.search));
+
+    function getEmailAddress(search: URLSearchParams): string | null {
+        return search.has('select') ? search.get('select') : null;
+    }
+
+    function setEmailAddress(value: string) {
+        navigate(`/admin/user/?select=${value}`);
+    }
+
+    useEffect(() => {
+        if (!emailAddress) {
+            setEmailAddress(account?.emailAddress!);
+        } else {
+            showAccess(accounts, emailAddress);
+        }
+    }, [emailAddress]);
 
     useEffect(
         () => {
@@ -87,7 +104,7 @@ export function UserAdmin() {
         setSaving(true);
         try {
             const update: UpdateAccessDto = {
-                emailAddress: emailAddress,
+                emailAddress: emailAddress!,
                 accessLevels: userAccount!.accessLevels,
             };
             const result: IClientActionResultDto<UserDto> =
@@ -107,8 +124,6 @@ export function UserAdmin() {
 
     async function changeAccount(emailAddress: string) {
         setEmailAddress(emailAddress);
-
-        showAccess(accounts, emailAddress);
     }
 
     function showAccess(accounts: UserDto[] | null, emailAddress: string) {
@@ -197,7 +212,7 @@ export function UserAdmin() {
                     <BootstrapDropdown
                         options={accounts ? accounts.map(toOption) : []}
                         onChange={changeAccount}
-                        value={emailAddress}
+                        value={emailAddress ?? ''}
                         className="margin-right"
                     />
                 )}

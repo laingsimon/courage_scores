@@ -23,6 +23,13 @@ import { seasonBuilder } from '../../helpers/builders/seasons.ts';
 import { teamBuilder } from '../../helpers/builders/teams.ts';
 import { TeamDto } from '../../interfaces/models/dtos/Team/TeamDto';
 
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router', () => ({
+    ...jest.requireActual('react-router'),
+    useNavigate: () => mockedUsedNavigate,
+}));
+
 describe('UserAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
@@ -53,12 +60,14 @@ describe('UserAdmin', () => {
         updatedAccess = null;
         apiResponse = null;
         teams = null;
+        jest.resetAllMocks();
     });
 
     async function renderComponent(
         accounts: UserDto[],
         account: UserDto,
         app?: Partial<IApp>,
+        currentPath?: string,
     ) {
         context = await renderApp(
             iocProps({ accountApi, teamApi }),
@@ -76,6 +85,8 @@ describe('UserAdmin', () => {
             <AdminContainer accounts={accounts} tables={[]}>
                 <UserAdmin />
             </AdminContainer>,
+            '/admin/user',
+            currentPath,
         );
     }
 
@@ -97,6 +108,9 @@ describe('UserAdmin', () => {
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
         expect(getAccess(AccessOption.manageAccess).text()).toEqual('🚫 None');
+        expect(mockedUsedNavigate).toHaveBeenCalledWith(
+            '/admin/user/?select=a@b.com',
+        );
     });
 
     it('renders user email addresses', async () => {
@@ -140,9 +154,12 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Other user',
         };
-        await renderComponent([account, otherAccount], account);
-
-        await context.required('.dropdown-menu').select('Other user');
+        await renderComponent(
+            [account, otherAccount],
+            account,
+            undefined,
+            '/admin/user/?select=c@d.com',
+        );
 
         reportedError.verifyNoError();
         expect(context.text()).toContain('Manage access');
@@ -160,8 +177,12 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Other user',
         };
-        await renderComponent([account, otherAccount], account);
-        await context.required('.dropdown-menu').select('Other user');
+        await renderComponent(
+            [account, otherAccount],
+            account,
+            undefined,
+            '/admin/user/?select=c@d.com',
+        );
         await getAccess(AccessOption.manageGames).parent()!.select('✅ Full');
 
         await context.button('Set access').click();
@@ -192,7 +213,12 @@ describe('UserAdmin', () => {
             divisions: [division, divisionBuilder('DIVISION 2').build()],
             seasons: [season, seasonBuilder('SEASON 2').build()],
         };
-        await renderComponent([account], account, appProps);
+        await renderComponent(
+            [account],
+            account,
+            appProps,
+            '/admin/user/?select=a@b.com',
+        );
 
         await getAccess(AccessOption.manageGames).parent()!.select('🎚️️ Custom');
         await context.button('✏️').click();
@@ -247,7 +273,12 @@ describe('UserAdmin', () => {
             divisions: [division],
             seasons: [season],
         };
-        await renderComponent([account], account, appProps);
+        await renderComponent(
+            [account],
+            account,
+            appProps,
+            '/admin/user/?select=a@b.com',
+        );
 
         await context.button('✏️').click();
         const dialog = context.required('.modal-dialog');
@@ -290,8 +321,12 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Other user',
         };
-        await renderComponent([account, otherAccount], account);
-        await context.required('.dropdown-menu').select('Other user');
+        await renderComponent(
+            [account, otherAccount],
+            account,
+            undefined,
+            '/admin/user/?select=c@d.com',
+        );
         await getAccess(AccessOption.manageGames).click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
 
@@ -313,8 +348,12 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Other user',
         };
-        await renderComponent([account, otherAccount], account);
-        await context.required('.dropdown-menu').select('Other user');
+        await renderComponent(
+            [account, otherAccount],
+            account,
+            undefined,
+            '/admin/user/?select=c@d.com',
+        );
         await getAccess(AccessOption.manageGames).click();
         apiResponse = { success: false, errors: ['SOME ERROR'] };
         await context.button('Set access').click();
@@ -336,7 +375,12 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Other user',
         };
-        await renderComponent([account, otherAccount], account);
+        await renderComponent(
+            [account, otherAccount],
+            account,
+            undefined,
+            '/admin/user/?select=a@b.com',
+        );
         await getAccess(AccessOption.manageGames).click();
 
         await context.button('Set access').click();
