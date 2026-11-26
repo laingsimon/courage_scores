@@ -225,10 +225,12 @@ export function UserAdmin() {
             <h6>
                 Access | Role:
                 <BootstrapDropdown
-                    options={roleMappings.map((r) => ({
-                        value: r.name,
-                        text: r.name,
-                    }))}
+                    options={roleMappings
+                        .map((r) => ({
+                            value: r.name,
+                            text: r.name,
+                        }))
+                        .sort((a, b) => a.text.localeCompare(b.text))}
                     onChange={changeRole}
                     value={getCurrentRole()}
                     className="margin-left"

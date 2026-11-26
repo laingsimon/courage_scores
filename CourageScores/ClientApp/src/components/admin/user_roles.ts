@@ -94,7 +94,7 @@ export const superleagueTvAccessLevels: IAccessLevels = {
 
 export const roleMappings: IRole[] = [
     {
-        name: 'None',
+        name: '-',
         accessLevels: {},
     },
     {
