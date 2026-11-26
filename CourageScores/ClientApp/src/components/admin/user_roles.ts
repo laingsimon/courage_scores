@@ -30,30 +30,23 @@ const leagueAdminAccessLevels: IAccessLevels = {
     DeleteAnyPhoto: {},
     BulkDeleteLeagueFixtures: {},
 };
-const leagueAndSuperLeagueAdminAccessLevels: IAccessLevels = {
+const superLeagueAdminAccessLevels: IAccessLevels = {
     ManageAccess: {},
     ManageDivisions: {},
     ManageGames: {},
     ManageNotes: {},
     ManagePlayers: {},
-    ManageScores: {},
     ManageSeasons: {},
     ManageTeams: {},
-    RunReports: {},
-    ExportData: {},
-    InputResults: {},
     RecordScoresAsYouGo: {},
     ManageTournaments: {},
-    RunHealthChecks: {},
-    ManageSeasonTemplates: {},
-    UseWebSockets: {},
     EnterTournamentResults: {},
-    UploadPhotos: {},
-    ViewAnyPhoto: {},
-    DeleteAnyPhoto: {},
-    BulkDeleteLeagueFixtures: {},
     AnalyseMatches: {},
     LoginServiceAccounts: {},
+};
+const leagueAndSuperLeagueAdminAccessLevels: IAccessLevels = {
+    ...leagueAdminAccessLevels,
+    ...superLeagueAdminAccessLevels,
 };
 const systemAdminAccessLevels: IAccessLevels = {
     ManageAccess: {},
@@ -107,6 +100,10 @@ export const roleMappings: IRole[] = [
     {
         name: 'League admin',
         accessLevels: leagueAdminAccessLevels,
+    },
+    {
+        name: 'Superleague admin',
+        accessLevels: superLeagueAdminAccessLevels,
     },
     {
         name: 'League & Superleague admin',
