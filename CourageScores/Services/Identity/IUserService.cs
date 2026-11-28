@@ -10,4 +10,5 @@ public interface IUserService
     Task<UserDto?> GetUser(string emailAddress, CancellationToken token);
     IAsyncEnumerable<UserDto> GetAll(CancellationToken token);
     Task<IDisposable> Login(UserDto user, CancellationToken token);
+    Task<ActionResultDto<UserDto>> DeleteUser(string emailAddress, CancellationToken token);
 }

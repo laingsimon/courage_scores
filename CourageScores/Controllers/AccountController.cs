@@ -89,4 +89,10 @@ public class AccountController : Controller
     {
         return await _userService.UpdateAccess(access, token);
     }
+
+    [HttpDelete("/api/Account")]
+    public async Task<ActionResultDto<UserDto>> Delete([FromBody] string emailAddress, CancellationToken token)
+    {
+        return await _userService.DeleteUser(emailAddress, token);
+    }
 }

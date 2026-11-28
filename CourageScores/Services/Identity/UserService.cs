@@ -178,6 +178,72 @@ public class UserService : IUserService
         };
     }
 
+    public async Task<ActionResultDto<UserDto>> DeleteUser(string emailAddress, CancellationToken token)
+    {
+        var loggedInUser = await GetUser(token);
+        if (loggedInUser == null)
+        {
+            return new ActionResultDto<UserDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not logged in",
+                },
+            };
+        }
+
+        if (!await _accessService.HasAccess(loggedInUser, AccessOption.ManageAccess, UserAccessContext.None(), token))
+        {
+            return new ActionResultDto<UserDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not permitted",
+                },
+            };
+        }
+
+        var userToDelete = await _userRepository.GetUser(emailAddress, token);
+
+        if (userToDelete == null)
+        {
+            return new ActionResultDto<UserDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not found",
+                },
+            };
+        }
+
+        if (loggedInUser.EmailAddress == userToDelete.EmailAddress)
+        {
+            return new ActionResultDto<UserDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Cannot delete yourself",
+                },
+            };
+        }
+
+        await _userRepository.DeleteUser(userToDelete, token);
+
+        return new ActionResultDto<UserDto>
+        {
+            Success = true,
+            Messages =
+            {
+                "Access updated",
+            },
+            Result = await _userAdapter.Adapt(userToDelete, UserAccessContext.None(), token),
+        };
+    }
+
     private async Task<Guid?> GetTeamIdForEmailAddress(string emailAddress, CancellationToken token)
     {
         if (string.IsNullOrEmpty(emailAddress))
