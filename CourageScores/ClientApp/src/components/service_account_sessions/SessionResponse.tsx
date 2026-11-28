@@ -16,6 +16,10 @@ import { useApp } from '../common/AppContainer.tsx';
 import { Loading } from '../common/Loading.tsx';
 import { hasAccessLevel } from '../../helpers/conditions.ts';
 import { AccessOption } from '../../interfaces/models/dtos/Identity/AccessOption.ts';
+import {
+    superleagueTabletAccessLevels,
+    superleagueTvAccessLevels,
+} from '../admin/user_roles.ts';
 
 interface AccessTemplate {
     name: string;
@@ -27,22 +31,12 @@ const accessTemplates: AccessTemplate[] = [
     {
         name: 'Superleague Tablet',
         description: 'Superleague Tablet, for entering scores',
-        access: [
-            AccessOption.useWebSockets,
-            AccessOption.showDebugOptions,
-            AccessOption.enterTournamentResults,
-            AccessOption.recordScoresAsYouGo,
-            AccessOption.kioskMode,
-        ],
+        access: Object.keys(superleagueTabletAccessLevels) as AccessOption[],
     },
     {
         name: 'Superleague TV',
         description: 'Superleague TV for displaying live results',
-        access: [
-            AccessOption.showDebugOptions,
-            AccessOption.useWebSockets,
-            AccessOption.kioskMode,
-        ],
+        access: Object.keys(superleagueTvAccessLevels) as AccessOption[],
     },
 ];
 
