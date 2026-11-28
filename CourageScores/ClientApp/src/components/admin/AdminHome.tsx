@@ -36,12 +36,25 @@ export function AdminHome() {
         try {
             const tables = await dataApi.tables();
             setDataTables(tables);
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
+        }
+    }
 
+    async function loadAccounts() {
+        try {
             const accounts = await accountApi.getAll();
             setAccounts(accounts);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
+        }
+    }
+
+    async function loadAll() {
+        try {
+            await Promise.all([loadAccounts(), loadTables()]);
         } finally {
             setAdminLoading(false);
         }
@@ -50,7 +63,7 @@ export function AdminHome() {
     useEffect(
         () => {
             // noinspection JSIgnoredPromiseFromCall
-            loadTables();
+            loadAll();
         },
         // eslint-disable-next-line
         [],
@@ -152,7 +165,10 @@ export function AdminHome() {
                 {!appLoading && adminLoading ? (
                     <Loading />
                 ) : (
-                    <AdminContainer tables={dataTables} accounts={accounts}>
+                    <AdminContainer
+                        tables={dataTables}
+                        accounts={accounts}
+                        reloadAccounts={loadAccounts}>
                         {!account && !appLoading ? <NotPermitted /> : null}
                         {!appLoading && effectiveTab === 'user'
                             ? renderIfPermitted(

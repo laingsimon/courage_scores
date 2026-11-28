@@ -25,7 +25,7 @@ import { accessMappings } from './user_access_mapping.ts';
 export function UserAdmin() {
     const { account, onError, reloadAccount } = useApp();
     const { accountApi } = useDependencies();
-    const { accounts } = useAdmin();
+    const { accounts, reloadAccounts } = useAdmin();
     const [saving, setSaving] = useState<boolean>(false);
     const [userAccount, setUserAccount] = useState<UserDto | undefined>(
         undefined,
@@ -113,6 +113,34 @@ export function UserAdmin() {
                 setSaveError(result);
             } else if (account?.emailAddress === update.emailAddress) {
                 await reloadAccount();
+            }
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    async function deleteUser() {
+        /* istanbul ignore next */
+        if (saving || !emailAddress) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${emailAddress}?`)) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const result = await accountApi.delete(emailAddress);
+            if (!result.success) {
+                setSaveError(result);
+            } else {
+                await reloadAccounts();
+                navigate('/admin/user');
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -232,6 +260,13 @@ export function UserAdmin() {
                         htmlFor="showEmailAddress">
                         Show email address
                     </label>
+                    {emailAddress !== account?.emailAddress && (
+                        <button
+                            className="btn btn-sm btn-danger margin-left"
+                            onClick={() => deleteUser()}>
+                            Delete
+                        </button>
+                    )}
                 </div>
             </div>
             <ul>
